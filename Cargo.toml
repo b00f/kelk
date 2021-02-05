@@ -1,0 +1,11 @@
+[workspace]
+members = [
+    "kelk",
+]
+exclude = [
+    "examples/",
+]
+
+[profile.release]
+panic = "abort"
+lto = true

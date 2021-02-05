@@ -1,0 +1,14 @@
+[package]
+name = "accessor"
+version = "0.0.1"
+edition = "2018"
+authors = ["Mantre <mantre@protonmail.com>"]
+
+[dependencies]
+kelk = {path = "../../kelk"}
+
+[lib]
+name = "accessor"
+path = "lib.rs"
+crate-type = ["cdylib"]
+
