@@ -1,70 +1,40 @@
-use super::buffer::{ScopedBuffer, StaticBuffer};
-use super::error::Error;
-use super::ptr::{Ptr32, Ptr32Mut};
+//! The public raw interface towards the host Wasm engine.
+
+
+use crate::ReturnCode;
+
 use super::sys;
 use super::Key;
 
-fn extract_from_slice(output: &mut &mut [u8], new_len: usize) {
-    debug_assert!(new_len <= output.len());
-    let tmp = core::mem::take(output);
-    *output = &mut tmp[..new_len];
+/// Prints the given contents to the environmental log.
+pub fn println(content: &str) {
+    let bytes = content.as_bytes();
+    unsafe { sys::zarb_println(bytes.as_ptr() as u32, bytes.len() as u32) }
 }
 
-pub struct Kelk {
-    /// Encode & decode buffer with static size of 4kB.
-    ///
-    buffer: StaticBuffer,
+/// Returns the value back to the caller of the executed contract.
+///
+/// # Note
+///
+/// This function  stops the execution of the contract immediately.
+pub fn return_value(value: &[u8]) {
+    unsafe { sys::zarb_return_value(value.as_ptr() as u32, value.len() as u32) }
 }
 
-impl Kelk {
-    pub fn new() -> Self {
-        Kelk {
-            buffer: StaticBuffer::new(),
-        }
-    }
-    /// Returns a new scoped buffer for the entire scope of the static 16kB buffer.
-    fn scoped_buffer(&mut self) -> ScopedBuffer {
-        ScopedBuffer::from(&mut self.buffer[..])
-    }
+/// Set the value to the contract storage under the given key.
+///
+pub fn set_storage<V>(key: &Key, value: &[u8]) -> ReturnCode {
+    let ret = unsafe {
+        sys::zarb_set_storage(key, value.as_ptr() as u32, value.len() as u32)
+    };
+    ret
+}
 
-    pub fn set_storage<V>(&mut self, key: &Key, value: &V)
-    where
-        V: scale::Encode,
-    {
-        let buffer = self.scoped_buffer().take_encoded(value);
-
-        unsafe { sys::zarb_set_storage(key, Ptr32::from_slice(buffer), buffer.len() as u32) }
-    }
-
-    pub fn get_storage<R>(&mut self, key: &Key) -> Option<R>
-    where
-        R: scale::Decode,
-    {
-        let output = &mut self.scoped_buffer().take_rest();
-
-        let mut output_len = output.len() as u32;
-        let ret_code = {
-            unsafe {
-                sys::zarb_get_storage(
-                    key,
-                    Ptr32Mut::from_slice(output),
-                    Ptr32Mut::from_ref(&mut output_len),
-                )
-            }
-        };
-        match ret_code.into() {
-            Ok(_) => (),
-            Err(Error::KeyNotFound) => return None,
-            Err(_) => panic!("encountered unexpected error"),
-        };
-
-        extract_from_slice(output, output_len as usize);
-        let decoded = scale::Decode::decode(&mut &output[..]).unwrap();
-        Some(decoded)
-    }
-
-    pub fn println(&mut self, content: &str) {
-        let bytes = content.as_bytes();
-        unsafe { sys::zarb_println(Ptr32::from_slice(bytes), bytes.len() as u32) }
-    }
+/// Returns the value stored under the given key in the contract's storage if any.
+///
+pub fn get_storage(key: &Key, value: &[u8]) -> ReturnCode {
+    let ret = unsafe {
+        sys::zarb_get_storage(key, value.as_ptr() as u32)
+    };
+    ret
 }

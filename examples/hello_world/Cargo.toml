@@ -1,5 +1,5 @@
 [package]
-name = "accessor"
+name = "helloworld"
 version = "0.0.1"
 edition = "2018"
 authors = ["Mantre <mantre@protonmail.com>"]
@@ -8,11 +8,11 @@ authors = ["Mantre <mantre@protonmail.com>"]
 kelk = {path = "../../kelk"}
 
 [lib]
-name = "accessor"
+name = "hello_world"
 path = "lib.rs"
 crate-type = ["cdylib"]
 
 [profile.release]
 panic = "abort"
 lto = true
-opt-level = "z"
+opt-level=3
