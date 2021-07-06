@@ -4,7 +4,7 @@
 
 #[no_mangle]
 pub fn greeting() {
-    kelk::println("hello world".as_bytes());
+    kelk::println("hello world");
 }
 
 
