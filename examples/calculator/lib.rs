@@ -1,8 +1,20 @@
 #![no_std]
 #![no_main]
 
-pub fn sum() -> i32 {
-    return 1 + 2;
+pub fn sum(a: i32, b: i32) -> i32 {
+    return a+b;
+}
+
+pub fn sub(a: i32, b: i32) -> i32 {
+    return a-b;
+}
+
+pub fn mul(a: i32, b: i32) -> i32 {
+    return a*b;
+}
+
+pub fn div(a: i32, b: i32) -> i32 {
+    return a/b;
 }
 
 /// The "deploy" will be executed only once on deployment but will not be stored on the blockchain
@@ -11,8 +23,14 @@ pub fn deploy() {}
 
 /// The call function is the main function of the *deployed* contract
 #[no_mangle]
-pub fn call() -> i32 {
-    sum()
+pub fn call(func: &str, a: i32, b: i32) -> i32 {
+    match func {
+        "sum" => sum(a,b),
+        "sub" => sub(a,b),
+        "mul" => mul(a,b),
+        "div" => div(a,b),
+        _ => 0
+    }
 }
 
 
