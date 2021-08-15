@@ -4,6 +4,7 @@ use core::str;
 
 pub fn set_greeting(name: &str) {
     let mut value = name.as_bytes();
+    // TODO: make it fixed length
     //value.resize(16, 0);
     kelk::write_storage(0, value);
 }
