@@ -25,6 +25,7 @@
 
 pub mod context;
 pub mod error;
+pub mod kelk;
 
 #[cfg(target_arch = "wasm32")]
 mod import;
@@ -34,12 +35,5 @@ pub mod export;
 #[cfg(target_arch = "wasm32")]
 pub use crate::export::do_process;
 
-/// The raw return code returned by the host side.
-#[derive(Debug)]
-#[repr(u32)]
-pub enum ReturnCode {
-    /// The result has no error
-    Success = 0,
-}
-
 pub use kelk_derive::entry_point;
+pub use kelk::Response;
