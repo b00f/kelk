@@ -8,15 +8,6 @@
 use crate::context::{ContextExt, ContextMut, OwnedContext};
 use serde::{de::DeserializeOwned, Serialize};
 
-/// TODO
-#[derive(Debug, Serialize)]
-pub struct Response {
-    // TODO: vec<u8> is a bad practice. look for a better response structure
-    // data: Vec<u8>
-    /// TODO
-    pub res: i32
-}
-
 /// do_execute should be wrapped in an external "C" export, containing a contract-specific function as arg
 ///
 /// - `M`: message type for request

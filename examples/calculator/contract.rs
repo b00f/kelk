@@ -1,6 +1,6 @@
 use crate::error::CalcError;
 use crate::message::CalcMsg;
-use kelk::{context::ContextMut, entry_point, export::Response};
+use kelk::{context::ContextMut, entry_point, Response};
 
 pub fn add(a: i32, b: i32) -> Result<i32, CalcError> {
     Ok(a + b)
@@ -35,5 +35,5 @@ fn process(Context: ContextMut, msg: CalcMsg) -> Result<Response, CalcError> {
         CalcMsg::Div { a, b } => div(a, b),
     }?;
 
-    Ok(Response{res: ans})
+    Ok(Response { res: ans })
 }
