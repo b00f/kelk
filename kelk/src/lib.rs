@@ -1,6 +1,6 @@
 //! This crate provide APIs for interacting with Zarb blockchain.
 //!
-
+#![no_std]
 #![deny(
     missing_docs,
     bad_style,
@@ -23,27 +23,23 @@
     unused_extern_crates
 )]
 
-mod kelk;
-mod context;
-mod sys;
-mod memory;
-
-pub use kelk::*;
+pub mod context;
+pub mod error;
 
 #[cfg(target_arch = "wasm32")]
-mod exports;
+mod import;
 #[cfg(target_arch = "wasm32")]
-mod imports;
+pub mod export;
 
 #[cfg(target_arch = "wasm32")]
-pub use crate::exports::{do_execute};
-
+pub use crate::export::do_process;
 
 /// The raw return code returned by the host side.
+#[derive(Debug)]
 #[repr(u32)]
 pub enum ReturnCode {
     /// The result has no error
     Success = 0,
-    /// The storage key is not found.
-    KeyNotFound = 1,
 }
+
+pub use kelk_derive::entry_point;

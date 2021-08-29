@@ -1,21 +1,15 @@
 [package]
-name = "sum"
+name = "calculator"
 version = "0.0.1"
 edition = "2018"
 authors = ["Mantre <mantre@protonmail.com>"]
 
 [dependencies]
-kelk = {path = "../../kelk"}
+kelk = { path = "../../kelk" }
+serde = { version = "1.0", default-features = false, features = ["derive"] }
+schemars = "0.8"
 
 [lib]
-name = "sum"
+name = "calculator"
 path = "lib.rs"
-crate-type = ["cdylib"]
 
-[profile.release]
-panic = "abort"
-lto = true
-opt-level=3
-
-[profile.dev]
-panic = "abort"
