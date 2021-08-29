@@ -2,7 +2,7 @@
 name = "kelk"
 version = "0.0.1"
 edition = "2018"
-authors = ["Mantre <mantre@protonmail.com>"]
+authors = ["Zarb development team <admin@zarb.network>"]
 license = "MIT"
 repository = "https://github.com/zarbchan/kelk"
 description = "Kelk is a Low-level interface for interacting with the smart contract Wasm executor."

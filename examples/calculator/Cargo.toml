@@ -2,14 +2,24 @@
 name = "calculator"
 version = "0.0.1"
 edition = "2018"
-authors = ["Mantre <mantre@protonmail.com>"]
+authors = ["Zarb development team <admin@zarb.network>"]
 
 [dependencies]
 kelk = { path = "../../kelk" }
 serde = { version = "1.0", default-features = false, features = ["derive"] }
-schemars = "0.8"
 
 [lib]
 name = "calculator"
 path = "lib.rs"
+crate-type = ["cdylib", "rlib"]
 
+[profile.release]
+opt-level = 3
+debug = false
+rpath = false
+lto = true
+debug-assertions = false
+codegen-units = 1
+panic = 'abort'
+incremental = false
+overflow-checks = true
