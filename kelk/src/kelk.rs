@@ -1,40 +1,53 @@
-//! The public raw interface towards the host Wasm engine.
+//! Kelk public API
+//!
+//! `do_deploy`, `do_process` and `do_query`
+//! should be wrapped with a extern "C" entry point including
+//! the contract-specific function pointer.
+//! This is done via the `#[entry_point]` macro attribute.
 
+use crate::{
+    context::{ContextExt, ContextMut, OwnedContext},
+    memory::{consume_region, release_buffer, Region},
+};
+use schemars::JsonSchema;
+use serde::{de::DeserializeOwned, Serialize};
+use std::result::Result;
 
-use crate::ReturnCode;
+/// TODO
+#[derive(Debug, Serialize)]
+pub struct Response {}
 
-use super::sys;
-use super::Key;
+/// do_execute should be wrapped in an external "C" export, containing a contract-specific function as arg
+///
+/// - `M`: message type for request
+/// - `E`: error type for responses
+pub fn do_process<M, E>(
+    execute_fn: &dyn Fn(ContextMut, M) -> Result<Response, E>,
+    msg_ptr: u32,
+) -> u32
+where
+    M: DeserializeOwned + JsonSchema,
+    E: ToString,
+{
+    let msg: Vec<u8> = unsafe { consume_region(msg_ptr as *mut Region) };
 
-/// Prints the given contents to the environmental log.
-pub fn println(content: &str) {
-    let bytes = content.as_bytes();
-    unsafe { sys::println(bytes.as_ptr() as u32, bytes.len() as u32) }
+    let msg: M = serde_json::from_slice(&msg).unwrap(); // TODO: error handling
+
+    let mut context = make_context();
+    match execute_fn(context.as_mut(), msg) {
+        Ok(res) => {
+            let v = serde_json::to_vec(&res).unwrap();
+            release_buffer(v) as u32
+        }
+        Err(_e) => {
+            0
+        }
+    }
 }
 
-/// Returns the value back to the caller of the executed contract.
-///
-/// # Note
-///
-/// This function  stops the execution of the contract immediately.
-pub fn return_value(value: &[u8]) {
-    unsafe { sys::return_value(value.as_ptr() as u32, value.len() as u32) }
-}
-
-/// Set the value to the contract storage under the given key.
-///
-pub fn write_storage(offset: u32, value: &[u8]) -> ReturnCode {
-    let ret = unsafe {
-        sys::write_storage(offset, value.as_ptr() as u32, value.len() as u32)
-    };
-    ret
-}
-
-/// Returns the value stored under the given key in the contract's storage if any.
-///
-pub fn read_storage(offset: u32, value: &[u8]) -> ReturnCode {
-    let ret = unsafe {
-        sys::read_storage(offset, value.as_ptr() as u32, value.len() as u32)
-    };
-    ret
+/// Make context instance
+pub(crate) fn make_context() -> OwnedContext<ContextExt> {
+    OwnedContext {
+        api: ContextExt::new(),
+    }
 }

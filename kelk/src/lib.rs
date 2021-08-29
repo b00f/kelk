@@ -1,7 +1,6 @@
 //! This crate provide APIs for interacting with Zarb blockchain.
 //!
 
-#![no_std]
 #![deny(
     missing_docs,
     bad_style,
@@ -24,12 +23,20 @@
     unused_extern_crates
 )]
 
-
+mod kelk;
+mod context;
 mod sys;
-pub mod kelk;
+mod memory;
+
 pub use kelk::*;
 
-type Key = u32;
+#[cfg(target_arch = "wasm32")]
+mod exports;
+#[cfg(target_arch = "wasm32")]
+mod imports;
+
+#[cfg(target_arch = "wasm32")]
+pub use crate::exports::{do_execute};
 
 
 /// The raw return code returned by the host side.
@@ -39,17 +46,4 @@ pub enum ReturnCode {
     Success = 0,
     /// The storage key is not found.
     KeyNotFound = 1,
-
-}
-
-
-#[cfg(all(not(feature = "std"), target_arch = "wasm32"))]
-#[panic_handler]
-fn panic(_info: &core::panic::PanicInfo) -> ! {
-    // SAFETY: We only use this operation if we are guaranteed to be in Wasm32 compilation.
-    //         This is used in order to make any panic a direct abort avoiding Rust's general
-    //         panic infrastructure.
-    unsafe {
-        core::arch::wasm32::unreachable();
-    }
 }
