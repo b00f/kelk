@@ -2,6 +2,7 @@
 name = "kelk-derive"
 version = "0.1.0"
 edition = "2018"
+authors = ["Zarb development team <admin@zarb.network>"]
 
 [lib]
 proc-macro = true

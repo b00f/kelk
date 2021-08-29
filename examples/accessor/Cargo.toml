@@ -2,7 +2,7 @@
 name = "accessor"
 version = "0.0.1"
 edition = "2018"
-authors = ["Mantre <mantre@protonmail.com>"]
+authors = ["Zarb development team <admin@zarb.network>"]
 
 [dependencies]
 kelk = {path = "../../kelk"}
