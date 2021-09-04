@@ -2,7 +2,7 @@
 
 Kelk is a Low-level interface for interacting with the smart contract Wasm executor
 
-## How ro compile contracts
+## How to compile contracts
 
 ```
 rustup target add wasm32-unknown-unknown
