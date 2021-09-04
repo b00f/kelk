@@ -25,7 +25,7 @@
 
 pub mod context;
 pub mod error;
-pub mod kelk;
+pub mod response;
 
 #[cfg(target_arch = "wasm32")]
 mod import;
@@ -33,7 +33,7 @@ mod import;
 pub mod export;
 
 #[cfg(target_arch = "wasm32")]
-pub use crate::export::do_process;
+pub use crate::export::{do_process_msg, do_instantiate};
 
-pub use kelk_derive::entry_point;
-pub use kelk::Response;
+pub use kelk_derive::kelk_derive;
+pub use response::Response;

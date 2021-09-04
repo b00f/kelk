@@ -1,5 +1,3 @@
-use crate::ReturnCode;
-
 
 /// The raw return code returned by the host side.
 #[derive(Debug)]

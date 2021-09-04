@@ -12,10 +12,7 @@ description = "Kelk is a Low-level interface for interacting with the smart cont
 lto = true
 
 [dependencies]
-serde = { version = "1.0", default-features = false, features = [
-    "derive",
-    "alloc",
-] }
+serde = { version = "1.0", default-features = false, features = ["derive"] }
 thiserror = "1.0"
-serde_json = "1.0"
+serde_cbor = "0.11"
 kelk-derive = { path = "derive" }
