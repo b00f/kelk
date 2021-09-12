@@ -5,7 +5,3 @@ members = [
 exclude = [
     "examples/",
 ]
-
-[profile.release]
-panic = "abort"
-lto = true

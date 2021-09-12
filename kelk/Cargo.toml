@@ -8,11 +8,8 @@ repository = "https://github.com/zarbchan/kelk"
 description = "Kelk is a Low-level interface for interacting with the smart contract Wasm executor."
 
 
-[profile.release]
-lto = true
-
 [dependencies]
-serde = { version = "1.0", default-features = false, features = ["derive"] }
-thiserror = "1.0"
-serde_cbor = "0.11"
+minicbor = { version = "0.11.1", features = ["half", "derive"] }
+minicbor-derive = "0.7.1"
 kelk-derive = { path = "derive" }
+wee_alloc = { version = "0.4", default-features = false }

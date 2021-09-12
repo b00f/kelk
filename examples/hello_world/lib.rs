@@ -1,29 +1,17 @@
 #![no_std]
-use core::str;
-
-
-pub fn set_greeting(name: &str) {
-    let mut value = name.as_bytes();
-    // TODO: make it fixed length
-    //value.resize(16, 0);
-    kelk::write_storage(0, value);
-}
-
-pub fn greeting() {
-    let value = &[0 as u8;16];
-    kelk::read_storage(0, value);
-    let greeting =str::from_utf8(value).unwrap();
-    kelk::println(greeting);
-}
 
 /// The "deploy" will be executed only once on deployment but will not be stored on the blockchain
 #[no_mangle]
-pub fn deploy() {
-    set_greeting("hello world!");
+pub fn sum(a: u32, b: u32) -> u32 {
+    a + b
 }
 
-/// The call function is the main function of the *deployed* contract
-#[no_mangle]
-pub fn call() {
-    greeting();
+#[panic_handler]
+fn panic(_info: &core::panic::PanicInfo) -> ! {
+    // SAFETY: We only use this operation if we are guaranteed to be in Wasm32 compilation.
+    //         This is used in order to make any panic a direct abort avoiding Rust's general
+    //         panic infrastructure.
+    unsafe {
+        core::arch::wasm32::unreachable();
+    }
 }
