@@ -5,7 +5,7 @@ edition = "2018"
 authors = ["Zarb development team <admin@zarb.network>"]
 
 [dependencies]
-kelk = {path = "../../kelk"}
+kelk = { path = "../../kelk" }
 
 [lib]
 name = "accessor"

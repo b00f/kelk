@@ -7,16 +7,12 @@
 
 use crate::context::{ContextExt, ContextMut, OwnedContext};
 use crate::Response;
-use serde::{de::DeserializeOwned, Serialize};
-use serde_cbor::{from_slice, to_vec};
-
+use minicbor::{Decode, Encode};
 
 /// TODO
-pub fn do_instantiate<E>(
-    instantiate_fn: &dyn Fn(ContextMut) -> Result<Response, E>,
-) -> u32
+pub fn do_instantiate<E>(instantiate_fn: &dyn Fn(ContextMut) -> Result<Response, E>) -> u32
 where
-    E: Serialize,
+    E: Encode,
 {
     let mut ctx = make_context();
     instantiate_fn(ctx.as_mut());
@@ -27,17 +23,17 @@ where
 ///
 /// - `M`: message type for request
 /// - `E`: error type for responses
-pub fn do_process_msg<M, E>(
-    process_msg_fn: &dyn Fn(ContextMut, M) -> Result<Response, E>,
+pub fn do_process_msg<'a, D, E>(
+    process_msg_fn: &dyn Fn(ContextMut, D) -> Result<Response, E>,
     msg_ptr: *const u8,
     length: u32,
 ) -> u32
 where
-    M: DeserializeOwned,
-    E: Serialize,
+    D: Decode<'a>,
+    E: Encode,
 {
     let buf: &[u8] = unsafe { core::slice::from_raw_parts(msg_ptr, length as usize) };
-    let msg = from_slice(buf).unwrap(); // TODO: return error
+    let msg = minicbor::decode(buf).unwrap(); // TODO: return error
     let mut ctx = make_context();
     process_msg_fn(ctx.as_mut(), msg);
     0 // TODO: convert res to ptr??
