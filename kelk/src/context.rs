@@ -1,8 +1,5 @@
 //! The context for running contract actor
 
-#![feature(alloc)]
-extern crate alloc;
-
 use crate::error::KelkError;
 use alloc::vec::Vec;
 

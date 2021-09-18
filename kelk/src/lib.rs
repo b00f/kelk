@@ -28,6 +28,9 @@ pub mod context;
 pub mod error;
 pub mod response;
 
+extern crate alloc;
+
+
 #[cfg(target_arch = "wasm32")]
 mod memory;
 

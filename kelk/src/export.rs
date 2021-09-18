@@ -6,8 +6,22 @@
 //! This is done via the `#[entry_point]` macro attribute.
 
 use crate::context::{ContextExt, ContextMut, OwnedContext};
+use crate::memory;
 use crate::Response;
 use minicbor::{Decode, Encode};
+
+/// allocate reserves the given number of bytes in wasm memory and returns a pointer
+/// to the this data. This space is managed by the calling process and
+/// should be accompanied by a corresponding deallocate
+#[no_mangle]
+extern "C" fn allocate(size: usize) -> u32 {
+    memory::allocate(size)
+}
+
+/// deallocate frees the allocate memory.
+#[no_mangle]
+extern "C" fn deallocate(ptr: u32) {
+}
 
 /// TODO
 pub fn do_instantiate<E>(instantiate_fn: &dyn Fn(ContextMut) -> Result<Response, E>) -> u32
