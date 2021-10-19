@@ -1,6 +1,6 @@
 [package]
 name = "kelk"
-version = "0.0.3"
+version = "0.0.4"
 edition = "2018"
 authors = ["Zarb development team <admin@zarb.network>"]
 license = "MIT"
