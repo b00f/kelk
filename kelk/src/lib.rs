@@ -26,10 +26,10 @@
 
 pub mod context;
 pub mod error;
+pub mod params;
 pub mod response;
 
 extern crate alloc;
-
 
 #[cfg(target_arch = "wasm32")]
 mod memory;
@@ -49,7 +49,6 @@ pub use response::Response;
 // Use `wee_alloc` as the global allocator.
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
-
 
 // TODO:
 // Build id ok, but tests has compile error

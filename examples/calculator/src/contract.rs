@@ -34,7 +34,7 @@ mod __wasm_export_instantiate {
 #[cfg(target_arch = "wasm32")]
 mod __wasm_export_process_msg {
     #[no_mangle]
-    extern "C" fn process_msg(msg_ptr: *const u8, length: u32) -> u32 {
+    extern "C" fn process_msg(msg_ptr: *const u8, length: u32) -> u64 {
         kelk::do_process_msg(&super::process_msg, msg_ptr, length)
     }
 }

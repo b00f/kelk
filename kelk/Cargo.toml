@@ -1,6 +1,6 @@
 [package]
 name = "kelk"
-version = "0.0.4"
+version = "0.0.5"
 edition = "2018"
 authors = ["Zarb development team <admin@zarb.network>"]
 license = "MIT"
@@ -9,7 +9,7 @@ description = "Kelk is a Low-level interface for interacting with the smart cont
 
 
 [dependencies]
-minicbor = { version = "0.11.1", features = ["half", "derive"] }
-minicbor-derive = "0.7.1"
+minicbor = { version = "0.11", features = ["half", "derive"] }
+minicbor-derive = "0.7"
 kelk-derive = { path = "derive" }
 wee_alloc = { version = "0.4", default-features = false }

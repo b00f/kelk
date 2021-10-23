@@ -8,5 +8,6 @@ pub trait Error: Debug + Display {}
 
 /// TODO
 pub enum KelkError {
-
+    /// todo
+    WriteStorageFailed,
 }

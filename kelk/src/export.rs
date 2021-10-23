@@ -5,7 +5,8 @@
 //! the contract-specific function pointer.
 //! This is done via the `#[entry_point]` macro attribute.
 
-use crate::context::{ContextExt, ContextMut, OwnedContext};
+use crate::context::{ContextMut, OwnedContext};
+use crate::import::ContextExt;
 use crate::memory;
 use crate::Response;
 use minicbor::{Decode, Encode};
@@ -29,7 +30,7 @@ pub fn do_instantiate<E: Encode>(instantiate_fn: &dyn Fn(ContextMut) -> E) -> u3
     0
 }
 
-/// TODO: FIXME
+/// TODO: UPDATE MY COMMENT
 /// do_process_msg should be wrapped in an external "C" export, containing a contract-specific function as arg
 ///
 /// - `M`: message type for request
