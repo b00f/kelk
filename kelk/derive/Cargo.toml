@@ -1,8 +1,10 @@
 [package]
 name = "kelk-derive"
 version = "0.1.0"
-edition = "2018"
+edition = "2021"
 authors = ["Zarb development team <admin@zarb.network>"]
+repository = "https://github.com/zarbchan/kelk"
+description = "Kelk-derive contains derive macros for auto-generated code used in Zarb blockchain."
 
 [lib]
 proc-macro = true

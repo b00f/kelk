@@ -8,7 +8,6 @@ pub const PARAM_CALLER_ADDRESS: i32 = 0x0010;
 ///
 pub const PARAM_CALLER_ID: i32 = 0x0011;
 
-
 /// Parameter value types
 #[derive(Encode, Decode)]
 pub enum ParamType {

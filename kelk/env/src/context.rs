@@ -4,7 +4,6 @@ use crate::error::KelkError;
 use crate::params::*;
 use alloc::vec::Vec;
 
-
 /// TODO
 pub trait ContextAPI {
     /// TODO
@@ -48,4 +47,3 @@ impl<C: ContextAPI> OwnedContext<C> {
         ContextMut { api: &self.api }
     }
 }
-

@@ -1,15 +1,15 @@
 [package]
-name = "kelk"
-version = "0.0.5"
-edition = "2018"
+name = "kelk-env"
+version = "0.1.0"
+edition = "2021"
 authors = ["Zarb development team <admin@zarb.network>"]
 license = "MIT"
 repository = "https://github.com/zarbchan/kelk"
-description = "Kelk is a Low-level interface for interacting with the smart contract Wasm executor."
+description = "Kelk-env is a Low-level interface for interacting with Tanour (Wasm executor) in Zarb blockchain."
 
 
 [dependencies]
 minicbor = { version = "0.11", features = ["half", "derive"] }
 minicbor-derive = "0.7"
-kelk-derive = { path = "derive" }
+kelk-derive = { path = "../derive" }
 wee_alloc = { version = "0.4", default-features = false }

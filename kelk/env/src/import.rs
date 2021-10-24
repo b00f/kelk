@@ -1,8 +1,7 @@
-use crate::error::KelkError;
 use crate::context::ContextAPI;
-use alloc::vec::Vec;
+use crate::error::KelkError;
 use crate::params::*;
-
+use alloc::vec::Vec;
 
 /// The raw return code returned by the host side.
 #[derive(Debug, Eq, PartialEq)]
@@ -21,7 +20,6 @@ extern "C" {
     fn read_storage(offset: u32, ptr: u32, len: u32) -> ReturnCode;
 }
 
-
 /// TODO
 pub struct ContextExt {}
 
@@ -31,7 +29,6 @@ impl ContextExt {
         ContextExt {}
     }
 }
-
 
 /// todo
 impl ContextAPI for ContextExt {
@@ -64,6 +61,4 @@ impl ContextAPI for ContextExt {
     fn get_param(&self, param_id: i32) -> Result<ParamType, KelkError> {
         todo!("unimplemented");
     }
-
 }
-

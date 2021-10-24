@@ -1,6 +1,6 @@
 use crate::error::CalcError;
 use crate::message::CalcMsg;
-use kelk::{context::ContextMut, kelk_derive, Response};
+use kelk_env::{context::ContextMut, kelk_derive, Response};
 
 
 pub fn add(_ctx: ContextMut, a: i32, b: i32) -> Result<i32, CalcError> {
@@ -27,7 +27,7 @@ pub fn div(_ctx: ContextMut, a: i32, b: i32) -> Result<i32, CalcError> {
 mod __wasm_export_instantiate {
     #[no_mangle]
     extern "C" fn instantiate() -> u32 {
-        kelk::do_instantiate(&super::instantiate)
+        kelk_env::do_instantiate(&super::instantiate)
     }
 }
 
@@ -35,7 +35,7 @@ mod __wasm_export_instantiate {
 mod __wasm_export_process_msg {
     #[no_mangle]
     extern "C" fn process_msg(msg_ptr: *const u8, length: u32) -> u64 {
-        kelk::do_process_msg(&super::process_msg, msg_ptr, length)
+        kelk_env::do_process_msg(&super::process_msg, msg_ptr, length)
     }
 }
 

@@ -1,5 +1,5 @@
-use core::mem;
 use alloc::vec::Vec;
+use core::mem;
 
 /// Allocates the memory of capacity `size` and length 0. Returns a pointer.
 /// This is the same as the `allocate` export, but designed to be called internally.
