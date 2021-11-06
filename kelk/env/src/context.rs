@@ -7,7 +7,7 @@ use alloc::vec::Vec;
 /// TODO
 pub trait ContextAPI {
     /// TODO
-    fn write_storage(&self, offset: u32, data: &[u8]) -> Result<(), KelkError>;
+    fn write_storage(&mut self, offset: u32, data: &[u8]) -> Result<(), KelkError>;
 
     /// TODO
     fn read_storage(&self, offset: u32, length: u32) -> Result<Vec<u8>, KelkError>;

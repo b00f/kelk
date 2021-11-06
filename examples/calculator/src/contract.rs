@@ -2,7 +2,6 @@ use crate::error::CalcError;
 use crate::message::CalcMsg;
 use kelk_env::{context::ContextMut, kelk_derive, Response};
 
-
 pub fn add(_ctx: ContextMut, a: i32, b: i32) -> Result<i32, CalcError> {
     Ok(a + b)
 }
@@ -41,9 +40,7 @@ mod __wasm_export_process_msg {
 
 // #[kelk_derive(instantiate)]
 fn instantiate(_ctx: ContextMut) -> Result<Response, CalcError> {
-    Ok(Response{
-        res: 0,
-    })
+    Ok(Response { res: 0 })
 }
 
 /// The process_msg function is the main function of the *deployed* contract actor
@@ -61,4 +58,4 @@ fn process_msg(ctx: ContextMut, msg: CalcMsg) -> Result<Response, CalcError> {
 
 #[cfg(test)]
 #[path = "./contract_test.rs"]
-mod instance_test;
+mod contract_test;

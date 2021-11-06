@@ -32,6 +32,10 @@ impl ContextExt {
 
 /// todo
 impl ContextAPI for ContextExt {
+    //todo
+    fn msg_sender(&self) -> Result<Vec<u8>, KelkError> {
+        unimplemented!()
+    }
     /// todo
     fn write_storage(&self, offset: u32, data: &[u8]) -> Result<(), KelkError> {
         let ptr = data.as_ptr() as u32;
@@ -59,6 +63,6 @@ impl ContextAPI for ContextExt {
 
     /// todo
     fn get_param(&self, param_id: i32) -> Result<ParamType, KelkError> {
-        todo!("unimplemented");
+        unimplemented!();
     }
 }

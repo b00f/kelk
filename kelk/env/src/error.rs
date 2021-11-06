@@ -10,4 +10,6 @@ pub trait Error: Debug + Display {}
 pub enum KelkError {
     /// todo
     WriteStorageFailed,
+    /// if user try to access out of bound offset
+    StorageOutOfBound,
 }
