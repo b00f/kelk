@@ -1,14 +1,8 @@
-//!
-//!
+//! Kelk errors.
 
-use core::fmt::{Debug, Display};
-
-/// TODO
-pub trait Error: Debug + Display {}
-
-/// TODO
+/// Kelk error types
 pub enum KelkError {
-    /// todo
+    /// An issue occurred on writing into storage file
     WriteStorageFailed,
     /// if user try to access out of bound offset
     StorageOutOfBound,

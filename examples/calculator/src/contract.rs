@@ -1,25 +1,37 @@
 use crate::error::CalcError;
 use crate::message::CalcMsg;
-use kelk_env::{context::ContextMut, kelk_derive, Response};
+use kelk_env::{context::Context, Response};
 
-pub fn add(_ctx: ContextMut, a: i32, b: i32) -> Result<i32, CalcError> {
+fn add(_ctx: Context, a: i32, b: i32) -> Result<i32, CalcError> {
     Ok(a + b)
 }
 
-pub fn sub(_ctx: ContextMut, a: i32, b: i32) -> Result<i32, CalcError> {
+fn sub(_ctx: Context, a: i32, b: i32) -> Result<i32, CalcError> {
     Ok(a - b)
 }
 
-pub fn mul(_ctx: ContextMut, a: i32, b: i32) -> Result<i32, CalcError> {
+fn mul(_ctx: Context, a: i32, b: i32) -> Result<i32, CalcError> {
     Ok(a * b)
 }
 
-pub fn div(_ctx: ContextMut, a: i32, b: i32) -> Result<i32, CalcError> {
+fn div(_ctx: Context, a: i32, b: i32) -> Result<i32, CalcError> {
     if b == 0 {
         return Err(CalcError::DivByZero);
     }
     Ok(a / b)
 }
+
+// pub fn set_memory(ctx: Context, m: i32) -> Result<i32, CalcError> {
+//     let d = m.to_be_bytes();
+//     ctx.write_storage(0, d)?;
+//     Ok(m)
+// }
+
+// pub fn memory(ctx: Context) -> Result<i32, CalcError> {
+//     let d = ctx.read_storage(0, 4)?;
+//     let m = i32::from_be_bytes(d);
+//     Ok(m)
+// }
 
 /// The "instantiate" will be executed only once on instantiating the contract actor
 #[cfg(target_arch = "wasm32")]
@@ -39,13 +51,13 @@ mod __wasm_export_process_msg {
 }
 
 // #[kelk_derive(instantiate)]
-fn instantiate(_ctx: ContextMut) -> Result<Response, CalcError> {
+pub fn instantiate(_ctx: Context) -> Result<Response, CalcError> {
     Ok(Response { res: 0 })
 }
 
-/// The process_msg function is the main function of the *deployed* contract actor
+/// _ctx: Context) The process_msg function is the main function of the *deployed* contract actor
 // #[kelk_derive(process_msg)]
-fn process_msg(ctx: ContextMut, msg: CalcMsg) -> Result<Response, CalcError> {
+pub fn process_msg(ctx: Context, msg: CalcMsg) -> Result<Response, CalcError> {
     let ans = match msg {
         CalcMsg::Add { a, b } => add(ctx, a, b),
         CalcMsg::Sub { a, b } => sub(ctx, a, b),

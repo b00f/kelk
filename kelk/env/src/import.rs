@@ -11,32 +11,27 @@ pub enum ReturnCode {
     Success = 0,
 }
 
-/// todo
 #[link(wasm_import_module = "zarb")]
 extern "C" {
-    /// todo
+    /// write data at given offset of storage file.
+    /// `ptr` is the location in sandbox memory where data should be read from.
+    /// `len` is the length of data.
     fn write_storage(offset: u32, ptr: u32, len: u32) -> ReturnCode;
-    /// todo
+    /// read data from the given offset of storage file .
+    /// `ptr` is the location in sandbox memory where data should be written to.
+    /// `len` is the length of data.
     fn read_storage(offset: u32, ptr: u32, len: u32) -> ReturnCode;
 }
 
-/// TODO
-pub struct ContextExt {}
+pub(crate) struct ContextExt {}
 
 impl ContextExt {
-    /// TODO
     pub fn new() -> Self {
         ContextExt {}
     }
 }
 
-/// todo
 impl ContextAPI for ContextExt {
-    //todo
-    fn msg_sender(&self) -> Result<Vec<u8>, KelkError> {
-        unimplemented!()
-    }
-    /// todo
     fn write_storage(&self, offset: u32, data: &[u8]) -> Result<(), KelkError> {
         let ptr = data.as_ptr() as u32;
         let len = data.len() as u32;
@@ -48,7 +43,6 @@ impl ContextAPI for ContextExt {
         Ok(())
     }
 
-    /// todo
     fn read_storage(&self, offset: u32, len: u32) -> Result<Vec<u8>, KelkError> {
         let mut vec = alloc::vec::Vec::with_capacity(len as usize);
         vec.resize(len as usize, 0);
@@ -62,7 +56,7 @@ impl ContextAPI for ContextExt {
     }
 
     /// todo
-    fn get_param(&self, param_id: i32) -> Result<ParamType, KelkError> {
+    fn get_param(&self, _param_id: i32) -> Result<ParamType, KelkError> {
         unimplemented!();
     }
 }

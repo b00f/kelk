@@ -1,4 +1,4 @@
-//! Kelk TODO
+//! Kelk response message
 
 use minicbor_derive::Encode;
 

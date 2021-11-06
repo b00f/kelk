@@ -1,5 +1,4 @@
-//!
-//!
+//! Parameter types in Kelk
 
 use minicbor::{Decode, Encode};
 

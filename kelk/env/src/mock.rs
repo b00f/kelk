@@ -1,6 +1,7 @@
-//! Kelk TODO
+//! Mocking Context for testing contracts
 
 use alloc::vec::Vec;
+use core::cell::RefCell;
 
 use crate::{
     context::{ContextAPI, OwnedContext},
@@ -8,40 +9,43 @@ use crate::{
     params::ParamType,
 };
 
-///todo
-pub struct MockContext {
-    storage: Vec<u8>,
+/// `MockContextAPI` mocks the APIs for testing purpose.
+pub struct MockContextAPI {
+    storage: RefCell<Vec<u8>>,
 }
 
-///todo
-impl MockContext {
-    ///todo
-    pub fn new(size: usize) -> OwnedContext<MockContext> {
-        let mut storage = Vec::with_capacity(size);
-        storage.fill(0);
-        OwnedContext {
-            api: MockContext { storage },
-        }
+impl MockContextAPI {
+    /// instantiates a new mock
+    pub fn new(size: u32) -> Self {
+        let storage = RefCell::new(Vec::with_capacity(size as usize));
+        storage.borrow_mut().fill(0);
+        MockContextAPI { storage }
     }
 }
 
-impl ContextAPI for MockContext {
-    fn write_storage(&mut self, offset: u32, data: &[u8]) -> Result<(), KelkError> {
-        if offset as usize + data.len() > self.storage.len() {
+impl ContextAPI for MockContextAPI {
+    fn write_storage(&self, offset: u32, data: &[u8]) -> Result<(), KelkError> {
+        if offset as usize + data.len() > self.storage.borrow().len() {
             return Err(KelkError::StorageOutOfBound);
         }
-        for i in 0..data.len() - 1 {
-            self.storage[i + offset as usize] = data[i];
+        for (i, d) in data.iter().enumerate() {
+            self.storage.borrow_mut()[i + offset as usize] = *d;
         }
         Ok(())
     }
 
     fn read_storage(&self, offset: u32, length: u32) -> Result<Vec<u8>, KelkError> {
-        let c = &self.storage[offset as usize..offset as usize + length as usize];
+        let c = &self.storage.borrow()[offset as usize..offset as usize + length as usize];
         Ok(c.into())
     }
 
     fn get_param(&self, _param_id: i32) -> Result<ParamType, KelkError> {
         unimplemented!()
     }
+}
+
+/// makes a mocked context
+pub fn mock_context(storage_size: u32) -> OwnedContext<MockContextAPI> {
+    let api = MockContextAPI::new(storage_size);
+    OwnedContext { api }
 }

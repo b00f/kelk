@@ -5,10 +5,9 @@
 //! the contract-specific function pointer.
 //! This is done via the `#[entry_point]` macro attribute.
 
-use crate::context::{ContextMut, OwnedContext};
+use crate::context::{Context, OwnedContext};
 use crate::import::ContextExt;
 use crate::memory;
-use crate::Response;
 use minicbor::{Decode, Encode};
 
 /// allocate reserves the given number of bytes in wasm memory and returns a pointer
@@ -21,12 +20,12 @@ extern "C" fn allocate(size: usize) -> u32 {
 
 /// deallocate frees the allocate memory.
 #[no_mangle]
-extern "C" fn deallocate(ptr: u32) {}
+extern "C" fn deallocate(_ptr: u32) {}
 
 /// TODO
-pub fn do_instantiate<E: Encode>(instantiate_fn: &dyn Fn(ContextMut) -> E) -> u32 {
-    let mut ctx = make_context();
-    instantiate_fn(ctx.as_mut());
+pub fn do_instantiate<E: Encode>(instantiate_fn: &dyn Fn(Context) -> E) -> u32 {
+    let ctx = make_context();
+    instantiate_fn(ctx.as_ref());
     0
 }
 
@@ -36,14 +35,14 @@ pub fn do_instantiate<E: Encode>(instantiate_fn: &dyn Fn(ContextMut) -> E) -> u3
 /// - `M`: message type for request
 /// - `E`: error type for responses
 pub fn do_process_msg<'a, D: Decode<'a>, E: Encode>(
-    process_msg_fn: &dyn Fn(ContextMut, D) -> E,
+    process_msg_fn: &dyn Fn(Context, D) -> E,
     msg_ptr: *const u8,
     length: u32,
 ) -> u64 {
     let buf: &[u8] = unsafe { core::slice::from_raw_parts(msg_ptr, length as usize) };
     let msg = minicbor::decode(buf).unwrap(); // TODO: return error
-    let mut ctx = make_context();
-    let res = process_msg_fn(ctx.as_mut(), msg);
+    let ctx = make_context();
+    let res = process_msg_fn(ctx.as_ref(), msg);
 
     result_to_region(res)
 }

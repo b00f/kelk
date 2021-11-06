@@ -4,46 +4,36 @@ use crate::error::KelkError;
 use crate::params::*;
 use alloc::vec::Vec;
 
-/// TODO
+/// `ContextAPI` provides the necessary APIs to interact with the Tanour.
+/// It can't be copied or cloned since it doesn't have Copy and Clone traits.
 pub trait ContextAPI {
-    /// TODO
-    fn write_storage(&mut self, offset: u32, data: &[u8]) -> Result<(), KelkError>;
+    /// Writes `data` into the storage file at the given offset
+    fn write_storage(&self, offset: u32, data: &[u8]) -> Result<(), KelkError>;
 
-    /// TODO
+    /// Writes `data` from the storage file at the given offset and length
     fn read_storage(&self, offset: u32, length: u32) -> Result<Vec<u8>, KelkError>;
 
-    /// TODO
+    /// Gets parameters
     fn get_param(&self, param_id: i32) -> Result<ParamType, KelkError>;
 }
 
-/// TODO
+/// `OwnedContext` owns the `ContextAPI` instance. It allow dependency injection at runtime.
+/// This cannot be copied or cloned since `api` doesn't implement Copy and Clone traits.
+/// It can be easily mocked for the testing environment.
 pub struct OwnedContext<C: ContextAPI> {
-    /// TODO
+    /// The instance of ContextAPI
     pub api: C,
 }
 
-/// TODO
-pub struct ContextMut<'a> {
-    /// TODO
-    pub api: &'a dyn ContextAPI,
-}
-
-/// TODO
-#[derive(Copy, Clone)]
+/// `Context` owns the `ContextAPI` reference.
 pub struct Context<'a> {
-    /// TODO
+    /// The instance of ContextAPI
     pub api: &'a dyn ContextAPI,
 }
 
-/// TODO
 impl<C: ContextAPI> OwnedContext<C> {
-    /// TODO
+    /// returns the context as reference
     pub fn as_ref(&'_ self) -> Context<'_> {
         Context { api: &self.api }
-    }
-
-    /// TODO
-    pub fn as_mut(&'_ mut self) -> ContextMut<'_> {
-        ContextMut { api: &self.api }
     }
 }
