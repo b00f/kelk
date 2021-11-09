@@ -10,9 +10,9 @@ pub struct Pointer {
 
 impl Pointer {
     /// defiles a pointer from u64
-    pub fn from_u64(region: u64) -> Self {
-        let ptr = (region & 0xFFFFFFFF) as *const u8;
-        let len = (region >> 32) as u32;
+    pub fn from_u64(ptr_64: u64) -> Self {
+        let ptr = (ptr_64 & 0xFFFFFFFF) as *const u8;
+        let len = (ptr_64 >> 32) as u32;
 
         Self { ptr, len }
     }
