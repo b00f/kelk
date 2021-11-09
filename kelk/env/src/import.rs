@@ -44,8 +44,7 @@ impl ContextAPI for ContextExt {
     }
 
     fn read_storage(&self, offset: u32, len: u32) -> Result<Vec<u8>, KelkError> {
-        let mut vec = alloc::vec::Vec::with_capacity(len as usize);
-        vec.resize(len as usize, 0);
+        let vec = alloc::vec![0; len as usize];
         let ptr = vec.as_ptr() as u32;
 
         let read = unsafe { read_storage(offset, ptr, len) };
