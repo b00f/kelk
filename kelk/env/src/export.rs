@@ -7,20 +7,23 @@
 
 use crate::context::{Context, OwnedContext};
 use crate::import::ContextExt;
-use crate::memory;
+use crate::memory::Pointer;
 use minicbor::{Decode, Encode};
 
 /// allocate reserves the given number of bytes in wasm memory and returns a pointer
-/// to the this data. This space is managed by the calling process and
-/// should be accompanied by a corresponding deallocate
+/// to a Pointer defining this data. This space is managed by the calling process
+/// and should be accompanied by a corresponding deallocate
 #[no_mangle]
-extern "C" fn allocate(size: usize) -> u32 {
-    memory::allocate(size)
+extern "C" fn allocate(size: u32) -> u64 {
+    Pointer::allocate(size).as_u64()
 }
 
-/// deallocate frees the allocate memory.
+/// deallocate expects a pointer to a Pointer created with allocate.
+/// It will free both the Pointer and the memory referenced by the Pointer.
 #[no_mangle]
-extern "C" fn deallocate(_ptr: u32) {}
+extern "C" fn deallocate(ptr_u64: u64) {
+    Pointer::from_u64(ptr_u64).deallocate();
+}
 
 /// TODO
 pub fn do_instantiate<E: Encode>(instantiate_fn: &dyn Fn(Context) -> E) -> u32 {
@@ -36,26 +39,22 @@ pub fn do_instantiate<E: Encode>(instantiate_fn: &dyn Fn(Context) -> E) -> u32 {
 /// - `E`: error type for responses
 pub fn do_process_msg<'a, D: Decode<'a>, E: Encode>(
     process_msg_fn: &dyn Fn(Context, D) -> E,
-    msg_ptr: *const u8,
-    length: u32,
+    msg_ptr: u64,
 ) -> u64 {
-    let buf: &[u8] = unsafe { core::slice::from_raw_parts(msg_ptr, length as usize) };
-    let msg = minicbor::decode(buf).unwrap(); // TODO: return error
+    let ptr = Pointer::from_u64(msg_ptr);
+    let buf = unsafe { ptr.to_slice() };
+    let msg = minicbor::decode(buf).expect("Decoding failed");
     let ctx = make_context();
     let res = process_msg_fn(ctx.as_ref(), msg);
 
-    result_to_region(res)
+    result_to_ptr(res)
 }
 
-fn result_to_region<E: Encode>(res: E) -> u64 {
+fn result_to_ptr<E: Encode>(res: E) -> u64 {
     let mut vec = alloc::vec::Vec::new();
-    minicbor::encode(res, &mut vec).unwrap();
+    minicbor::encode(res, &mut vec).expect("Encoding failed");
 
-    let ptr = vec.as_ptr() as u64;
-    let len = vec.len() as u64;
-
-    core::mem::forget(vec);
-    ptr | (len << 32)
+    Pointer::release_buffer(vec).as_u64()
 }
 
 /// Make context instance
@@ -63,4 +62,23 @@ pub(crate) fn make_context() -> OwnedContext<ContextExt> {
     OwnedContext {
         api: ContextExt::new(),
     }
+}
+
+#[cfg(test)]
+mod tests {
+    // Uncomment this test if should_panic supported by wasm_bindgen_test.
+    // https://github.com/rustwasm/wasm-bindgen/issues/2286
+    //
+    // use super::*;
+    // use wasm_bindgen_test::*;
+    //
+    // #[wasm_bindgen_test]
+    // #[should_panic]
+    // fn test_allocation() {
+    //     let ptr = allocate(1);
+    //     deallocate(ptr);
+
+    //     // Should panic here, because the pointer is freed before
+    //     deallocate(ptr);
+    // }
 }
