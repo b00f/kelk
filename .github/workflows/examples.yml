@@ -1,0 +1,31 @@
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+name: Building and testing examples (x86-64)
+
+jobs:
+  testing:
+    strategy:
+      matrix:
+        examples: [calculator]
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Rust
+        run: |
+          rustup toolchain install nightly --component rustfmt clippy
+          rustup toolchain install nightly --target wasm32-unknown-unknown
+
+      - name: Compiling and testing ${{ matrix.examples }}
+        run: |
+          cd examples/${{ matrix.examples }}
+          cargo +nightly fmt --all -- --check
+          cargo +nightly clippy --all-features -- -D warnings
+          cargo +nightly test --all
+          cargo +nightly build --target wasm32-unknown-unknown --release
