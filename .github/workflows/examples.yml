@@ -21,9 +21,9 @@ jobs:
         run: |
           rustup toolchain install nightly --component rustfmt clippy
 
-      - name: Compiling and testing {{ matrix.examples }}
+      - name: Compiling and testing ${{ matrix.examples }}
         run: |
-          cd examples/{{ matrix.examples }}
+          cd examples/${{ matrix.examples }}
           cargo +nightly fmt --all -- --check
           cargo +nightly clippy --all-features -- -D warnings
           cargo +nightly test --all
