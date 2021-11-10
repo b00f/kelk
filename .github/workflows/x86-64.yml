@@ -9,7 +9,7 @@ on:
 name: Coverage and linting (x86-64)
 
 jobs:
-  all:
+  x84-64:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

@@ -9,7 +9,7 @@ on:
 name: Testing and linting (wasm32)
 
 jobs:
-  all:
+  wasm-32:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
