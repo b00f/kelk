@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install Rust
         run: |
-          rustup toolchain install nightly rustfmt clippy
+          rustup toolchain install nightly --component rustfmt clippy
 
       - name: Compiling and testing {{ matrix.examples }}
         run: |
