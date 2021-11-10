@@ -18,12 +18,6 @@ jobs:
           rustup toolchain install nightly --component llvm-tools-preview rustfmt clippy
           rustup toolchain install nightly --target wasm32-unknown-unknown
 
-      # Compining test-contract
-      - name: Compiling test-contract
-        run: |
-          cd test-contract
-          cargo +nightly build --target wasm32-unknown-unknown --release -Z unstable-options --out-dir ./wasm
-
       - name: Install cargo-llvm-cov
         run: curl -LsSf https://github.com/taiki-e/cargo-llvm-cov/releases/latest/download/cargo-llvm-cov-x86_64-unknown-linux-gnu.tar.gz | tar xzf - -C ~/.cargo/bin
 
