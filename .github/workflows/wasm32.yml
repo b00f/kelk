@@ -1,0 +1,30 @@
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+name: Testing and linting (wasm32)
+
+jobs:
+  all:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Rust
+        run: |
+          rustup toolchain install nightly --component clippy
+          rustup toolchain install nightly --target wasm32-unknown-unknown
+          # installing wasm-pack (https://rustwasm.github.io/wasm-pack/installer/)
+          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Testing kelk-env (wasm32)
+        run: |
+          cd kelk/env
+          rustup run nightly $HOME/.cargo/bin/wasm-pack test --node
+
+
+      - name: Clippy check (wasm-32)
+        run: cargo +nightly clippy --target wasm32-unknown-unknown --all-features -- -D warnings
