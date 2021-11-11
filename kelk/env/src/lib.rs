@@ -26,11 +26,9 @@
 
 pub mod context;
 pub mod error;
-pub mod mock;
 pub mod params;
-pub mod response;
 
-extern crate alloc;
+pub mod mock;
 
 #[cfg(target_arch = "wasm32")]
 mod memory;
@@ -42,10 +40,9 @@ mod import;
 pub mod export;
 
 #[cfg(target_arch = "wasm32")]
-pub use crate::export::{do_instantiate, do_process_msg};
+pub use crate::export::{do_instantiate, do_process_msg, do_query};
 
 pub use kelk_derive::kelk_derive;
-pub use response::Response;
 
 // Use `wee_alloc` as the global allocator.
 #[global_allocator]

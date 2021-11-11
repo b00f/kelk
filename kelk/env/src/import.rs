@@ -1,7 +1,8 @@
 use crate::context::ContextAPI;
 use crate::error::KelkError;
 use crate::params::*;
-use alloc::vec::Vec;
+use kelk_lib::alloc::vec::Vec;
+use kelk_lib::storage::{Error, Storage};
 
 /// The raw return code returned by the host side.
 #[derive(Debug, Eq, PartialEq)]
@@ -31,29 +32,31 @@ impl ContextExt {
     }
 }
 
-impl ContextAPI for ContextExt {
-    fn write_storage(&self, offset: u32, data: &[u8]) -> Result<(), KelkError> {
+impl Storage for ContextExt {
+    fn swrite(&self, offset: u32, data: &[u8]) -> Result<(), Error> {
         let ptr = data.as_ptr() as u32;
         let len = data.len() as u32;
 
         let read = unsafe { write_storage(offset, ptr, len) };
         if read != ReturnCode::Success {
-            return Err(KelkError::WriteStorageFailed);
+            return Err(Error::WriteStorageFailed);
         }
         Ok(())
     }
 
-    fn read_storage(&self, offset: u32, len: u32) -> Result<Vec<u8>, KelkError> {
-        let vec = alloc::vec![0; len as usize];
+    fn sread(&self, offset: u32, len: u32) -> Result<Vec<u8>, Error> {
+        let vec = kelk_lib::alloc::vec![0; len as usize];
         let ptr = vec.as_ptr() as u32;
 
         let read = unsafe { read_storage(offset, ptr, len) };
         if read != ReturnCode::Success {
-            return Err(KelkError::WriteStorageFailed);
+            return Err(Error::ReadStorageFailed);
         }
         Ok(vec)
     }
+}
 
+impl ContextAPI for ContextExt {
     /// todo
     fn get_param(&self, _param_id: i32) -> Result<ParamType, KelkError> {
         unimplemented!();

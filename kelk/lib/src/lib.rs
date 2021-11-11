@@ -22,3 +22,12 @@
     trivial_numeric_casts,
     unused_extern_crates
 )]
+
+pub mod storage;
+
+pub mod mock;
+
+pub extern crate alloc;
+
+#[macro_use]
+extern crate doc_comment;
