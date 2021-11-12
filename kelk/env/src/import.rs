@@ -12,6 +12,7 @@ pub enum ReturnCode {
     Success = 0,
 }
 
+#[cfg(not(test))]
 #[link(wasm_import_module = "zarb")]
 extern "C" {
     /// write data at given offset of storage file.
@@ -30,6 +31,18 @@ impl ContextExt {
     pub fn new() -> Self {
         ContextExt {}
     }
+}
+
+// TODO:
+// Is it possible to create a zarb module for testing and remove these code?
+#[cfg(test)]
+pub unsafe fn write_storage(_offset: u32, _ptr: u32, _len: u32) -> ReturnCode {
+    ReturnCode::Success
+}
+
+#[cfg(test)]
+pub unsafe fn read_storage(_offset: u32, _ptr: u32, _len: u32) -> ReturnCode {
+    ReturnCode::Success
 }
 
 impl Storage for ContextExt {
