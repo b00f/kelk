@@ -5,7 +5,7 @@ use core::fmt::{self, Debug};
 /// Error raised by the host
 pub struct HostError {
     /// Error raised by the host
-    pub(super) code: i32,
+    pub code: i32,
 }
 
 impl Debug for HostError {

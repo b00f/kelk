@@ -38,24 +38,24 @@ pub unsafe fn read_storage(_offset: u32, _ptr: u32, _len: u32) -> i32 {
 }
 
 impl Storage for ContextExt {
-    fn swrite(&self, offset: u32, data: &[u8]) -> Result<(), Error> {
+    fn swrite(&self, offset: u32, data: &[u8]) -> Result<(), HostError> {
         let ptr = data.as_ptr() as u32;
         let len = data.len() as u32;
 
         let code = unsafe { write_storage(offset, ptr, len) };
         if code != 0 {
-            return Err(Error::HostError { code });
+            return Err(HostError { code });
         }
         Ok(())
     }
 
-    fn sread(&self, offset: u32, len: u32) -> Result<Vec<u8>, Error> {
+    fn sread(&self, offset: u32, len: u32) -> Result<Vec<u8>, HostError> {
         let vec = kelk_lib::alloc::vec![0; len as usize];
         let ptr = vec.as_ptr() as u32;
 
         let code = unsafe { read_storage(offset, ptr, len) };
         if code != 0 {
-            return Err(Error::HostError { code });
+            return Err(HostError { code });
         }
         Ok(vec)
     }
@@ -63,7 +63,7 @@ impl Storage for ContextExt {
 
 impl ContextAPI for ContextExt {
     /// todo
-    fn get_param(&self, _param_id: i32) -> Result<ParamType, KelkError> {
+    fn get_param(&self, _param_id: i32) -> Option<ParamType> {
         unimplemented!();
     }
 }
