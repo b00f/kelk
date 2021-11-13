@@ -6,6 +6,7 @@
 - Implementing `deallocate` API to free the allocated memory
 - Implementing Query API
 - Updating Storage API for primitive types
+- Storage BST (Binary Search Tree) for lib crate
 
 ## Version 0.1.0
 
