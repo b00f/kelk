@@ -1,4 +1,3 @@
-
 #[repr(C)]
 pub(super) struct Node<K: Sized + Ord, V: Sized> {
     pub left: u32,
@@ -7,7 +6,7 @@ pub(super) struct Node<K: Sized + Ord, V: Sized> {
     pub value: V,
 }
 
-impl<K:  Sized + Ord, V: Sized> Node<K, V> {
+impl<K: Sized + Ord, V: Sized> Node<K, V> {
     pub fn new(key: K, value: V) -> Self {
         Self {
             key,

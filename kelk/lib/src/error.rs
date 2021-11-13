@@ -1,8 +1,6 @@
 //! Define the Host error.
 
-
 use core::fmt::{self, Debug};
-
 
 /// Error raised by the host
 pub struct HostError {

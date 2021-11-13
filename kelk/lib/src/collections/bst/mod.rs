@@ -1,7 +1,9 @@
 //! Storage Binary Search Tree
 
-pub mod bst;
 pub mod error;
+pub mod tree;
 
 mod header;
 mod node;
+
+pub use tree::StorageBST;

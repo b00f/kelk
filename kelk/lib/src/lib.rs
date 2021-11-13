@@ -23,10 +23,10 @@
     unused_extern_crates
 )]
 
-pub mod storage;
 pub mod collections;
-pub mod mock;
 pub mod error;
+pub mod mock;
+pub mod storage;
 
 pub extern crate alloc;
 

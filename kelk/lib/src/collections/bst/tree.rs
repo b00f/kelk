@@ -74,7 +74,7 @@ where
             let root_offset = self.offset + size_of::<Header>() as u32;
             swrite_struct(self.storage, self.offset, &self.header)?;
             swrite_struct(self.storage, root_offset, &root)?;
-            return Ok(None);
+            Ok(None)
         } else {
             let mut offset = self.offset + size_of::<Header>() as u32;
             let mut node = sread_struct::<Node<K, V>>(self.storage, offset)?;
@@ -87,7 +87,7 @@ where
                     return Ok(Some(old_value));
                 } else if node.key.le(&key) {
                     if node.left.eq(&0) {
-                        self.header.count = self.header.count + 1;
+                        self.header.count += 1;
                         let new_offset = self.offset
                             + size_of::<Header>() as u32
                             + (self.header.count * size_of::<Node<K, V>>() as u32);
@@ -102,7 +102,7 @@ where
                     offset = node.left;
                 } else {
                     if node.right.eq(&0) {
-                        self.header.count = self.header.count + 1;
+                        self.header.count += 1;
                         let new_offset = self.offset
                             + size_of::<Header>() as u32
                             + (self.header.count * size_of::<Node<K, V>>() as u32);
