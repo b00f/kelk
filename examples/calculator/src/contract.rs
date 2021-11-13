@@ -33,15 +33,6 @@ fn query_result(ctx: Context) -> Result<i32, CalcError> {
     ctx.api.sread_i32(0).map_err(|_| CalcError::KelkError)
 }
 
-/// The "instantiate" will be executed only once on instantiating the contract actor
-#[cfg(target_arch = "wasm32")]
-mod __wasm_export_instantiate {
-    #[no_mangle]
-    extern "C" fn instantiate() -> u32 {
-        kelk_env::do_instantiate(&super::instantiate)
-    }
-}
-
 #[cfg(target_arch = "wasm32")]
 mod __wasm_export_process_msg {
     #[no_mangle]
@@ -58,12 +49,6 @@ mod __wasm_export_query {
     }
 }
 
-// #[kelk_derive(instantiate)]
-pub fn instantiate(_ctx: Context) -> Result<(), CalcError> {
-    Ok(())
-}
-
-/// _ctx: Context) The process_msg function is the main function of the *deployed* contract actor
 // #[kelk_derive(process_msg)]
 pub fn process_msg(ctx: Context, msg: ProcMsg) -> Result<(), CalcError> {
     match msg {
@@ -74,6 +59,7 @@ pub fn process_msg(ctx: Context, msg: ProcMsg) -> Result<(), CalcError> {
     }
 }
 
+// #[kelk_derive(query)]
 pub fn query(ctx: Context, msg: QueryMsg) -> Result<QueryRsp, CalcError> {
     let res = match msg {
         QueryMsg::LastResult => query_result(ctx),
