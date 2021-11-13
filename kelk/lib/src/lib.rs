@@ -23,16 +23,12 @@
     unused_extern_crates
 )]
 
-<<<<<<< HEAD
 pub mod storage;
-
+pub mod collections;
 pub mod mock;
+pub mod error;
 
 pub extern crate alloc;
 
 #[macro_use]
 extern crate doc_comment;
-=======
-pub mod collections;
-pub(crate) mod storage;
->>>>>>> 7db175e (Defining Storage-BST)

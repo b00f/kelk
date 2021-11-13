@@ -2,23 +2,38 @@
 
 use core::fmt::{self, Debug};
 
-// TODO: convert it to enum
+/// A genral list of storage error
+pub enum Error {
+    /// Host error code
+    HostError(i32),
 
-/// A view into an occupied entry in a `BTreeMap`.
-/// It is part of the [`Entry`] enum.
-pub struct InvalidOffset {
-    pub(super) offset: u32,
+    /// Invalid offset
+    InvalidOffset(u32),
 }
 
-impl Debug for InvalidOffset {
+impl Debug for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("InvalidOffset")
-            .field("offset", &self.offset)
-            .finish()
+        match self {
+            Error::HostError(code) => f.debug_struct("HostError").field("code", code).finish(),
+
+            Error::InvalidOffset(offset) => f
+                .debug_struct("InvalidOffset")
+                .field("offset", &offset)
+                .finish(),
+        }
     }
 }
-impl fmt::Display for InvalidOffset {
+impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "invalid offset: {:?}", self.offset)
+        match self {
+            Error::HostError(code) => write!(f, "host error code: {:?}", code),
+            Error::InvalidOffset(offset) => write!(f, "invalid offset: {:?}", offset),
+        }
+    }
+}
+
+impl From<crate::error::HostError> for Error {
+    fn from(error: crate::error::HostError) -> Self {
+        Error::HostError(error.code)
     }
 }

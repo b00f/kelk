@@ -2,13 +2,12 @@
 
 use crate::{
     context::{ContextAPI, OwnedContext},
-    error::KelkError,
     params::ParamType,
 };
-use kelk_lib;
+use kelk_lib::{self, error::HostError};
 use kelk_lib::alloc::vec::Vec;
 use kelk_lib::mock::MockStorage;
-use kelk_lib::storage::{Error, Storage};
+use kelk_lib::storage::Storage;
 
 /// `MockContextAPI` mocks the APIs for testing purpose.
 pub struct MockContextAPI {
@@ -25,17 +24,17 @@ impl MockContextAPI {
 }
 
 impl Storage for MockContextAPI {
-    fn swrite(&self, offset: u32, data: &[u8]) -> Result<(), Error> {
+    fn swrite(&self, offset: u32, data: &[u8]) -> Result<(), HostError> {
         self.storage_mock.swrite(offset, data)
     }
 
-    fn sread(&self, offset: u32, len: u32) -> Result<Vec<u8>, Error> {
+    fn sread(&self, offset: u32, len: u32) -> Result<Vec<u8>, HostError> {
         self.storage_mock.sread(offset, len)
     }
 }
 
 impl ContextAPI for MockContextAPI {
-    fn get_param(&self, _param_id: i32) -> Result<ParamType, KelkError> {
+    fn get_param(&self, _param_id: i32) -> Option<ParamType> {
         unimplemented!()
     }
 }

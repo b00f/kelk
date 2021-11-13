@@ -24,7 +24,6 @@
 )]
 
 pub mod context;
-pub mod error;
 pub mod mock;
 pub mod params;
 

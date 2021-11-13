@@ -1,13 +1,13 @@
 //! The context for running contract actor
 
-use crate::error::KelkError;
 use crate::params::*;
 
 /// `ContextAPI` provides the necessary APIs to interact with the Tanour.
 /// It can't be copied or cloned since it doesn't have Copy and Clone traits.
 pub trait ContextAPI: kelk_lib::storage::Storage {
-    /// Gets parameters
-    fn get_param(&self, param_id: i32) -> Result<ParamType, KelkError>;
+    /// TODO move it to lib crate
+    /// gets the parameter value
+    fn get_param(&self, param_id: i32) -> Option<ParamType>;
 }
 
 /// `OwnedContext` owns the `ContextAPI` instance. It allow dependency injection at runtime.
