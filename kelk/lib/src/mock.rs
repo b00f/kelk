@@ -1,6 +1,7 @@
 //! Mocking Context for testing contracts
 
-use crate::storage::{Error, Storage};
+use crate::error::HostError;
+use crate::storage::Storage;
 use alloc::vec::Vec;
 use core::cell::RefCell;
 
@@ -18,9 +19,9 @@ impl MockStorage {
 }
 
 impl Storage for MockStorage {
-    fn swrite(&self, offset: u32, data: &[u8]) -> Result<(), Error> {
+    fn swrite(&self, offset: u32, data: &[u8]) -> Result<(), HostError> {
         if offset as usize + data.len() > self.storage.borrow().len() {
-            return Err(Error::UnexpectedEof);
+            return Err(HostError { code: 1 });
         }
         for (i, d) in data.iter().enumerate() {
             self.storage.borrow_mut()[i + offset as usize] = *d;
@@ -28,9 +29,9 @@ impl Storage for MockStorage {
         Ok(())
     }
 
-    fn sread(&self, offset: u32, length: u32) -> Result<Vec<u8>, Error> {
+    fn sread(&self, offset: u32, length: u32) -> Result<Vec<u8>, HostError> {
         if (offset + length) as usize > self.storage.borrow().len() {
-            return Err(Error::UnexpectedEof);
+            return Err(HostError { code: 1 });
         }
         let c = &self.storage.borrow()[offset as usize..(offset + length) as usize];
         Ok(c.into())
