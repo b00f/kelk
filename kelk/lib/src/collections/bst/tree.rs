@@ -74,10 +74,9 @@ where
             let root_offset = self.offset + size_of::<Header>() as u32;
             swrite_struct(self.storage, self.offset, &self.header)?;
             swrite_struct(self.storage, root_offset, &root)?;
-            return Ok(None);
-        }
-        if self.header.size >= self.header.capacity {
-            return Err(Error::OutOfCapacity);
+            Ok(None)
+        } else if self.header.size >= self.header.capacity {
+            Err(Error::OutOfCapacity)
         } else {
             let mut offset = self.offset + size_of::<Header>() as u32;
             let mut node = sread_struct::<Node<K, V>>(self.storage, offset)?;
@@ -182,7 +181,7 @@ mod tests {
         assert_eq!(header.key_len, 4);
         assert_eq!(header.value_len, 4);
         assert_eq!(header.size, 0);
-        assert_eq!(header.capacity, 0);
+        assert_eq!(header.capacity, 16);
     }
 
     #[test]
@@ -203,6 +202,22 @@ mod tests {
         assert_eq!(Some(100), bst.find(&0).unwrap());
         assert!(bst.contains_key(&2).unwrap());
         assert!(!bst.contains_key(&8).unwrap());
+    }
+
+    #[test]
+    fn test_load() {
+        let storage = mock_storage(1024);
+        let mut bst = StorageBST::<i32, i32>::create(&storage, 512, 128).unwrap();
+        assert_eq!(None, bst.insert(1, 1).unwrap());
+
+        let bst = StorageBST::<i32, i32>::lazy_load(&storage, 512).unwrap();
+        let header = sread_struct::<Header>(&storage, 512).unwrap();
+        assert_eq!(header.boom, 0xb3000000);
+        assert_eq!(header.key_len, 4);
+        assert_eq!(header.value_len, 4);
+        assert_eq!(header.size, 1);
+        assert_eq!(header.capacity, 128);
+        assert_eq!(Some(1), bst.find(&1).unwrap());
     }
 
     #[test]
