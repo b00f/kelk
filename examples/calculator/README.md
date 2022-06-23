@@ -14,7 +14,7 @@ cargo +nightly build --target wasm32-unknown-unknown --release -Z unstable-optio
 ## How to test
 
 ```
-cargo +nightly test --target wasm32-unknown-unknown -Z unstable-options
+cargo +nightly test -Z unstable-options
 ```
 
 ## WASM optimization
