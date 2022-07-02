@@ -9,6 +9,7 @@ use core::marker::PhantomData;
 use core::mem::size_of;
 use core::result::Result;
 
+
 /// The instance of Storage Binary Search Tree
 pub struct StorageBST<'a, K, V>
 where
@@ -130,7 +131,10 @@ where
         }
 
         let mut offset = self.offset + size_of::<Header>() as u32;
+            //    panic!("{} {}", offset, size_of::<Node<K, V>>());
         let mut node = sread_struct::<Node<K, V>>(self.storage, offset)?;
+
+
 
         loop {
             if node.key.eq(key) {
