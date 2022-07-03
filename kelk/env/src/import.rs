@@ -1,8 +1,8 @@
-use crate::context::ContextAPI;
+use crate::alloc::vec::Vec;
+use crate::blockchain::Blockchain;
+use crate::error::HostError;
 use crate::params::*;
-use kelk_lib::alloc::vec::Vec;
-use kelk_lib::error::HostError;
-use kelk_lib::storage::Storage;
+use crate::storage::Storage;
 
 #[cfg(not(test))]
 #[link(wasm_import_module = "zarb")]
@@ -50,7 +50,7 @@ impl Storage for ContextExt {
     }
 
     fn sread(&self, offset: u32, len: u32) -> Result<Vec<u8>, HostError> {
-        let vec = kelk_lib::alloc::vec![0; len as usize];
+        let vec = crate::alloc::vec![0; len as usize];
         let ptr = vec.as_ptr() as u32;
 
         let code = unsafe { read_storage(offset, ptr, len) };
@@ -61,7 +61,7 @@ impl Storage for ContextExt {
     }
 }
 
-impl ContextAPI for ContextExt {
+impl Blockchain for ContextExt {
     /// todo
     fn get_param(&self, _param_id: i32) -> Option<ParamType> {
         unimplemented!();

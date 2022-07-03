@@ -1,5 +1,5 @@
-use kelk_lib::alloc;
-use kelk_lib::alloc::vec::Vec;
+use crate::alloc;
+use crate::alloc::vec::Vec;
 
 /// defines a pointer to the allocated space in Wasm's linear memory.
 pub struct Pointer {

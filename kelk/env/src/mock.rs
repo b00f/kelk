@@ -1,29 +1,9 @@
 //! Mocking Context for testing contracts
 
 use crate::error::HostError;
-use crate::{blockchain::Blockchain, context::Context, params::ParamType, storage::Storage};
+use crate::{blockchain::Blockchain, context::OwnedContext, params::ParamType, storage::Storage};
 use alloc::vec::Vec;
 use core::cell::RefCell;
-
-/// `OwnedContext` owns the `ContextAPI` instance. It allow dependency injection at runtime.
-/// This cannot be copied or cloned since `api` doesn't implement Copy and Clone traits.
-/// It can be easily mocked for the testing environment.
-pub struct OwnedContext<B: Blockchain, S: Storage> {
-    /// The instance of mocked Blockchain
-    pub blockchain: B,
-    /// The instance of mocked Storage
-    pub storage: S,
-}
-
-impl<B: Blockchain, S: Storage> OwnedContext<B, S> {
-    /// returns the context as reference
-    pub fn as_ref(&'_ self) -> Context<'_> {
-        Context {
-            blockchain: &self.blockchain,
-            storage: &self.storage,
-        }
-    }
-}
 
 /// makes a mocked context
 pub fn mock_context(storage_size: usize) -> OwnedContext<MockBlockchain, MockStorage> {
@@ -53,6 +33,12 @@ impl MockBlockchain {
     /// instantiates a new blockchain mock
     pub fn new() -> Self {
         Self {}
+    }
+}
+
+impl Default for MockBlockchain {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

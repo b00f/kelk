@@ -61,16 +61,17 @@ fn do_execute<'a, D: Decode<'a>, R: Encode, E: Encode>(
     let msg = minicbor::decode(buf).expect("Decoding failed");
     let ctx = make_context();
     let res = func(ctx.as_ref(), msg);
-    let mut vec = kelk_lib::alloc::vec::Vec::new();
+    let mut vec = crate::alloc::vec::Vec::new();
     minicbor::encode(res, &mut vec).expect("Encoding failed");
 
     Pointer::release_buffer(vec).as_u64()
 }
 
 /// Make context instance
-pub(crate) fn make_context() -> OwnedContext<ContextExt> {
+pub(crate) fn make_context() -> OwnedContext<ContextExt, ContextExt> {
     OwnedContext {
-        api: ContextExt::new(),
+        blockchain: ContextExt::new(),
+        storage: ContextExt::new(),
     }
 }
 
