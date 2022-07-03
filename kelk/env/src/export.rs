@@ -78,7 +78,7 @@ pub(crate) fn make_context() -> OwnedContext<ContextExt, ContextExt> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use kelk_lib::alloc::vec;
+    use crate::alloc::vec;
     use wasm_bindgen_test::*;
 
     // Uncomment this test if should_panic supported by wasm_bindgen_test.
