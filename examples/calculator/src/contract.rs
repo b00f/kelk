@@ -3,19 +3,19 @@ use crate::message::{ProcMsg, QueryMsg, QueryRsp};
 use kelk_env::context::Context;
 
 fn add(ctx: Context, a: i32, b: i32) -> Result<(), CalcError> {
-    ctx.api
+    ctx.storage
         .swrite_i32(0, a + b)
         .map_err(|_| CalcError::KelkError)
 }
 
 fn sub(ctx: Context, a: i32, b: i32) -> Result<(), CalcError> {
-    ctx.api
+    ctx.storage
         .swrite_i32(0, a - b)
         .map_err(|_| CalcError::KelkError)
 }
 
 fn mul(ctx: Context, a: i32, b: i32) -> Result<(), CalcError> {
-    ctx.api
+    ctx.storage
         .swrite_i32(0, a * b)
         .map_err(|_| CalcError::KelkError)
 }
@@ -24,13 +24,13 @@ fn div(ctx: Context, a: i32, b: i32) -> Result<(), CalcError> {
     if b == 0 {
         return Err(CalcError::DivByZero);
     }
-    ctx.api
+    ctx.storage
         .swrite_i32(0, a / b)
         .map_err(|_| CalcError::KelkError)
 }
 
 fn query_result(ctx: Context) -> Result<i32, CalcError> {
-    ctx.api.sread_i32(0).map_err(|_| CalcError::KelkError)
+    ctx.storage.sread_i32(0).map_err(|_| CalcError::KelkError)
 }
 
 #[cfg(target_arch = "wasm32")]

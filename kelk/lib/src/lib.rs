@@ -24,11 +24,3 @@
 )]
 
 pub mod collections;
-pub mod error;
-pub mod mock;
-pub mod storage;
-
-pub extern crate alloc;
-
-#[macro_use]
-extern crate doc_comment;

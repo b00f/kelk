@@ -38,8 +38,8 @@ impl fmt::Display for Error {
     }
 }
 
-impl From<crate::error::HostError> for Error {
-    fn from(error: crate::error::HostError) -> Self {
+impl From<kelk_env::error::HostError> for Error {
+    fn from(error: kelk_env::error::HostError) -> Self {
         Error::HostError(error.code)
     }
 }
