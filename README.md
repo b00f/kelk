@@ -12,4 +12,4 @@ You can run the tests to ensure is all working with the `cargo test` command
 
 ## Building the docs
 
-For building the docs you can use the `cargo doc` command and `cargo doc --open` to inspect the documentation.
+For building the docs you can use the `cargo doc --no-deps` command and `cargo doc --no-deps --open` to inspect the documentation.
