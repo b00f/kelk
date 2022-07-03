@@ -1,4 +1,6 @@
 [target.wasm32-unknown-unknown]
 rustflags = [
-    "-C", "link-arg=-z", "-C", "link-arg=stack-size=65536"
+    "--remap-path-prefix=/home/mostafa/Projects/zarb/kelk/examples/calculator/src=src",
+    "--remap-path-prefix=/home/mostafa/.cargo=cargo",
+    "--remap-path-prefix=/home/mostafa/.rustup=rustup"
 ]
