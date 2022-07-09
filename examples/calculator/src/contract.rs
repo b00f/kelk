@@ -1,66 +1,51 @@
-use crate::error::CalcError;
-use crate::message::{ProcMsg, QueryMsg, QueryRsp};
+use crate::error::Error;
+use crate::message::{ProcessMsg, QueryMsg, QueryRsp};
+use kelk_derive::kelk_derive;
 use kelk_env::context::Context;
 
-fn add(ctx: Context, a: i32, b: i32) -> Result<(), CalcError> {
+fn add(ctx: Context, a: i32, b: i32) -> Result<(), Error> {
     ctx.storage
         .write_i32(0, a + b)
-        .map_err(|_| CalcError::KelkError)
+        .map_err(|_| Error::KelkError)
 }
 
-fn sub(ctx: Context, a: i32, b: i32) -> Result<(), CalcError> {
+fn sub(ctx: Context, a: i32, b: i32) -> Result<(), Error> {
     ctx.storage
         .write_i32(0, a - b)
-        .map_err(|_| CalcError::KelkError)
+        .map_err(|_| Error::KelkError)
 }
 
-fn mul(ctx: Context, a: i32, b: i32) -> Result<(), CalcError> {
+fn mul(ctx: Context, a: i32, b: i32) -> Result<(), Error> {
     ctx.storage
         .write_i32(0, a * b)
-        .map_err(|_| CalcError::KelkError)
+        .map_err(|_| Error::KelkError)
 }
 
-fn div(ctx: Context, a: i32, b: i32) -> Result<(), CalcError> {
+fn div(ctx: Context, a: i32, b: i32) -> Result<(), Error> {
     if b == 0 {
-        return Err(CalcError::DivByZero);
+        return Err(Error::DivByZero);
     }
     ctx.storage
         .write_i32(0, a / b)
-        .map_err(|_| CalcError::KelkError)
+        .map_err(|_| Error::KelkError)
 }
 
-fn query_result(ctx: Context) -> Result<i32, CalcError> {
-    ctx.storage.read_i32(0).map_err(|_| CalcError::KelkError)
+fn query_result(ctx: Context) -> Result<i32, Error> {
+    ctx.storage.read_i32(0).map_err(|_| Error::KelkError)
 }
 
-#[cfg(target_arch = "wasm32")]
-mod __wasm_export_process_msg {
-    #[no_mangle]
-    extern "C" fn process_msg(msg_ptr: u64) -> u64 {
-        kelk_env::do_process_msg(&super::process_msg, msg_ptr)
-    }
-}
-
-#[cfg(target_arch = "wasm32")]
-mod __wasm_export_query {
-    #[no_mangle]
-    extern "C" fn query(msg_ptr: u64) -> u64 {
-        kelk_env::do_query(&super::query, msg_ptr)
-    }
-}
-
-// #[kelk_derive(process_msg)]
-pub fn process_msg(ctx: Context, msg: ProcMsg) -> Result<(), CalcError> {
+#[kelk_derive(process)]
+pub fn process(ctx: Context, msg: ProcessMsg) -> Result<(), Error> {
     match msg {
-        ProcMsg::Add { a, b } => add(ctx, a, b),
-        ProcMsg::Sub { a, b } => sub(ctx, a, b),
-        ProcMsg::Mul { a, b } => mul(ctx, a, b),
-        ProcMsg::Div { a, b } => div(ctx, a, b),
+        ProcessMsg::Add { a, b } => add(ctx, a, b),
+        ProcessMsg::Sub { a, b } => sub(ctx, a, b),
+        ProcessMsg::Mul { a, b } => mul(ctx, a, b),
+        ProcessMsg::Div { a, b } => div(ctx, a, b),
     }
 }
 
-// #[kelk_derive(query)]
-pub fn query(ctx: Context, msg: QueryMsg) -> Result<QueryRsp, CalcError> {
+#[kelk_derive(query)]
+pub fn query(ctx: Context, msg: QueryMsg) -> Result<QueryRsp, Error> {
     let res = match msg {
         QueryMsg::LastResult => query_result(ctx),
     }?;
