@@ -9,26 +9,26 @@ use syn::parse_macro_input;
 /// It can be added to the contract's instantiate, process and query functions
 /// like this:
 /// ```
-/// # use kelk_derive::kelk_derive;
+/// use kelk_derive::kelk_derive;
 ///
 /// #[kelk_derive(instantiate)]
-/// # pub fn instantiate(ctx: Context, msg: InstantiateMsg) -> Result<(), Error> {
-/// #   todo!()
+/// pub fn instantiate(ctx: Context, msg: InstantiateMsg) -> Result<(), Error> {
+///    todo!()
+/// }
+///
+/// #[kelk_derive(process)]
+/// pub fn process(ctx: Context, msg: ProcessMsg) -> Result<(), Error> {
+///   todo!()
 /// #}
 ///
-/// #[kelk_derive(instantiate)]
-/// # pub fn process(ctx: Context, msg: ProcessMsg) -> Result<(), Error> {
-/// #   todo!()
-/// #}
-///
-/// #[kelk_derive(instantiate)]
-/// # pub fn query(ctx: Context, msg: QueryMsg) -> Result<(), Error> {
-/// #   todo!()
-/// #}
+/// #[kelk_derive(query)]
+/// pub fn query(ctx: Context, msg: QueryMsg) -> Result<(), Error> {
+///   todo!()
+/// }
 /// ```
 ///
-/// where `InstantiateMsg`, `ExecuteMsg`, and `QueryMsg` are contract defined
-/// types that implement `DeserializeOwned + JsonSchema`.
+/// where `InstantiateMsg`, `ProcessMsg`, and `QueryMsg` are contract defined
+/// types that implement CBOR encoding.
 #[proc_macro_attribute]
 pub fn kelk_derive(_attr: TokenStream, mut item: TokenStream) -> TokenStream {
     let cloned = item.clone();
