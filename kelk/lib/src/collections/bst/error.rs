@@ -4,8 +4,8 @@ use core::fmt::{self, Debug};
 
 /// A general list of Storage Binary Tree error
 pub enum Error {
-    /// Host error code
-    HostError(i32),
+    /// Kelk error
+    KelkError,
 
     /// Invalid offset
     InvalidOffset(u32),
@@ -17,8 +17,7 @@ pub enum Error {
 impl Debug for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Error::HostError(code) => f.debug_struct("HostError").field("code", code).finish(),
-
+            Error::KelkError => f.debug_struct("KelkError").finish(),
             Error::InvalidOffset(offset) => f
                 .debug_struct("InvalidOffset")
                 .field("offset", &offset)
@@ -31,15 +30,15 @@ impl Debug for Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Error::HostError(code) => write!(f, "host error code: {:?}", code),
+            Error::KelkError => write!(f, "host error"),
             Error::InvalidOffset(offset) => write!(f, "invalid offset: {:?}", offset),
             Error::OutOfCapacity => write!(f, "Capacity is full"),
         }
     }
 }
 
-impl From<kelk_env::error::HostError> for Error {
-    fn from(error: kelk_env::error::HostError) -> Self {
-        Error::HostError(error.code)
+impl From<kelk_env::error::Error> for Error {
+    fn from(_error: kelk_env::error::Error) -> Self {
+        Error::KelkError
     }
 }

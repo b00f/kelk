@@ -6,14 +6,14 @@ use super::header::Header;
 use core::marker::PhantomData;
 use core::mem::size_of;
 use core::result::Result;
-use kelk_env::storage::{sread_struct, swrite_struct, Storage};
+use kelk_env::storage::Storage;
 
 /// The instance of Storage Vector
 pub struct StorageVec<'a, V>
 where
     V: Sized,
 {
-    storage: &'a dyn Storage,
+    storage: &'a Storage,
     offset: u32,
     header: Header,
     _phantom: PhantomData<V>,
@@ -24,9 +24,9 @@ where
     V: Sized,
 {
     /// creates and store a new instance of Storage Vector at the given offset
-    pub fn create(storage: &'a dyn Storage, offset: u32, capacity: u32) -> Result<Self, Error> {
+    pub fn create(storage: &'a Storage, offset: u32, capacity: u32) -> Result<Self, Error> {
         let header = Header::new::<V>(capacity);
-        swrite_struct(storage, offset, &header)?;
+        storage.write_struct(offset, &header)?;
 
         Ok(StorageVec {
             storage,
@@ -37,8 +37,8 @@ where
     }
 
     /// load the Storage Vector
-    pub fn lazy_load(storage: &'a dyn Storage, offset: u32) -> Result<Self, Error> {
-        let header = sread_struct::<Header>(storage, offset)?;
+    pub fn lazy_load(storage: &'a Storage, offset: u32) -> Result<Self, Error> {
+        let header: Header = storage.read_struct(offset)?;
 
         // TODO:
         // Check boom and reserved field to be correct
@@ -76,8 +76,8 @@ where
             + (self.header.size * self.header.value_len as u32);
 
         self.header.size += 1;
-        swrite_struct(self.storage, self.offset, &self.header)?;
-        swrite_struct(self.storage, offset, &value)?;
+        self.storage.write_struct(self.offset, &self.header)?;
+        self.storage.write_struct(offset, &value)?;
         Ok(())
     }
 
@@ -89,7 +89,7 @@ where
 
         let offset =
             self.offset + size_of::<Header>() as u32 + (index * self.header.value_len as u32);
-        let val: V = sread_struct(self.storage, offset)?;
+        let val: V = self.storage.read_struct(offset)?;
         Ok(Some(val))
     }
 }
@@ -110,7 +110,7 @@ mod tests {
     fn test_header() {
         let storage = mock_storage(1024);
         StorageVec::<i32>::create(&storage, 512, 16).unwrap();
-        let header = sread_struct::<Header>(&storage, 512).unwrap();
+        let header: Header = storage.read_struct(512).unwrap();
         assert_eq!(header.boom, 0xb3000000);
         assert_eq!(header.reserved, 0);
         assert_eq!(header.value_len, 4);
@@ -143,7 +143,7 @@ mod tests {
         vec.push(1).unwrap();
 
         let vec = StorageVec::<i32>::lazy_load(&storage, 512).unwrap();
-        let header = sread_struct::<Header>(&storage, 512).unwrap();
+        let header: Header = storage.read_struct(512).unwrap();
         assert_eq!(header.boom, 0xb3000000);
         assert_eq!(header.reserved, 0);
         assert_eq!(header.value_len, 4);

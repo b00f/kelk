@@ -7,7 +7,7 @@ use super::node::Node;
 use core::marker::PhantomData;
 use core::mem::size_of;
 use core::result::Result;
-use kelk_env::storage::{sread_struct, swrite_struct, Storage};
+use kelk_env::storage::Storage;
 
 /// The instance of Storage Binary Search Tree
 pub struct StorageBST<'a, K, V>
@@ -15,7 +15,7 @@ where
     K: Sized + Ord,
     V: Sized,
 {
-    storage: &'a dyn Storage,
+    storage: &'a Storage,
     offset: u32,
     header: Header,
     _phantom: PhantomData<(K, V)>,
@@ -27,9 +27,9 @@ where
     V: Sized,
 {
     /// creates and store a new instance of Storage Binary Search Tree at the given offset
-    pub fn create(storage: &'a dyn Storage, offset: u32, capacity: u32) -> Result<Self, Error> {
+    pub fn create(storage: &'a Storage, offset: u32, capacity: u32) -> Result<Self, Error> {
         let header = Header::new::<K, V>(capacity);
-        swrite_struct(storage, offset, &header)?;
+        storage.write_struct::<Header>(offset, &header)?;
 
         Ok(StorageBST {
             storage,
@@ -40,8 +40,8 @@ where
     }
 
     /// load the Storage Binary Search Tree
-    pub fn lazy_load(storage: &'a dyn Storage, offset: u32) -> Result<Self, Error> {
-        let header = sread_struct::<Header>(storage, offset)?;
+    pub fn lazy_load(storage: &'a Storage, offset: u32) -> Result<Self, Error> {
+        let header: Header = storage.read_struct(offset)?;
 
         // TODO:
         // Check boom and reserved field to be correct
@@ -72,20 +72,20 @@ where
             self.header.size = 1;
 
             let root_offset = self.offset + size_of::<Header>() as u32;
-            swrite_struct(self.storage, self.offset, &self.header)?;
-            swrite_struct(self.storage, root_offset, &root)?;
+            self.storage.write_struct(self.offset, &self.header)?;
+            self.storage.write_struct(root_offset, &root)?;
             Ok(None)
         } else if self.header.size >= self.header.capacity {
             Err(Error::OutOfCapacity)
         } else {
             let mut offset = self.offset + size_of::<Header>() as u32;
-            let mut node = sread_struct::<Node<K, V>>(self.storage, offset)?;
+            let mut node: Node<K, V> = self.storage.read_struct(offset)?;
 
             loop {
                 if node.key.eq(&key) {
                     let old_value = node.value;
                     node.value = value;
-                    swrite_struct(self.storage, offset, &node)?;
+                    self.storage.write_struct(offset, &node)?;
                     return Ok(Some(old_value));
                 } else if node.key.le(&key) {
                     if node.left.eq(&0) {
@@ -94,11 +94,11 @@ where
                             + size_of::<Header>() as u32
                             + (self.header.size * size_of::<Node<K, V>>() as u32);
 
-                        swrite_struct(self.storage, self.offset, &self.header)?;
+                        self.storage.write_struct(self.offset, &self.header)?;
                         node.left = new_offset;
-                        swrite_struct(self.storage, offset, &node)?;
+                        self.storage.write_struct(offset, &node)?;
                         let new_node = Node::new(key, value);
-                        swrite_struct(self.storage, new_offset, &new_node)?;
+                        self.storage.write_struct(new_offset, &new_node)?;
                         return Ok(None);
                     }
                     offset = node.left;
@@ -109,16 +109,16 @@ where
                             + size_of::<Header>() as u32
                             + (self.header.size * size_of::<Node<K, V>>() as u32);
 
-                        swrite_struct(self.storage, self.offset, &self.header)?;
+                        self.storage.write_struct(self.offset, &self.header)?;
                         node.right = new_offset;
-                        swrite_struct(self.storage, offset, &node)?;
+                        self.storage.write_struct(offset, &node)?;
                         let new_node = Node::new(key, value);
-                        swrite_struct(self.storage, new_offset, &new_node)?;
+                        self.storage.write_struct(new_offset, &new_node)?;
                         return Ok(None);
                     }
                     offset = node.right;
                 }
-                node = sread_struct::<Node<K, V>>(self.storage, offset)?;
+                node = self.storage.read_struct(offset)?;
             }
         }
     }
@@ -130,7 +130,7 @@ where
         }
 
         let mut offset = self.offset + size_of::<Header>() as u32;
-        let mut node = sread_struct::<Node<K, V>>(self.storage, offset)?;
+        let mut node: Node<K, V> = self.storage.read_struct(offset)?;
 
         loop {
             if node.key.eq(key) {
@@ -146,7 +146,7 @@ where
                 }
                 offset = node.right;
             }
-            node = sread_struct::<Node<K, V>>(self.storage, offset)?;
+            node = self.storage.read_struct(offset)?;
         }
     }
 
@@ -176,7 +176,7 @@ mod tests {
     fn test_header() {
         let storage = mock_storage(1024);
         StorageBST::<i32, i64>::create(&storage, 512, 16).unwrap();
-        let header = sread_struct::<Header>(&storage, 512).unwrap();
+        let header: Header = storage.read_struct(512).unwrap();
         assert_eq!(header.boom, 0xb3000000);
         assert_eq!(header.key_len, 4);
         assert_eq!(header.value_len, 8);
@@ -211,7 +211,7 @@ mod tests {
         assert_eq!(None, bst.insert(1, 1).unwrap());
 
         let bst = StorageBST::<i32, i32>::lazy_load(&storage, 512).unwrap();
-        let header = sread_struct::<Header>(&storage, 512).unwrap();
+        let header = storage.read_struct::<Header>(512).unwrap();
         assert_eq!(header.boom, 0xb3000000);
         assert_eq!(header.key_len, 4);
         assert_eq!(header.value_len, 4);

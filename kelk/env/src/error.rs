@@ -2,21 +2,33 @@
 
 use core::fmt::{self, Debug};
 
+///
+pub enum Error {
+    /// Error raised by the host
+    HostError(i32),
+    /// Generic error
+    GenericError(&'static str),
+}
+
 /// Error raised by the host
 pub struct HostError {
     /// Error raised by the host
     pub code: i32,
 }
 
-impl Debug for HostError {
+impl Debug for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("HostError")
-            .field("code", &self.code)
-            .finish()
+        match self {
+            Error::HostError(code) => f.debug_struct("HostError").field("code", code).finish(),
+            Error::GenericError(msg) => f.debug_struct("GenericError").field("msg", msg).finish(),
+        }
     }
 }
-impl fmt::Display for HostError {
+impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Host error. Code: {:?}", self.code)
+        match self {
+            Error::HostError(code) => write!(f, "host error code: {:?}", code),
+            Error::GenericError(msg) => write!(f, "generic code: {:?}", msg),
+        }
     }
 }

@@ -1,8 +1,8 @@
 //! Storage Vector
 
 pub mod error;
-pub mod vec;
 
 mod header;
+mod vec;
 
 pub use vec::StorageVec;

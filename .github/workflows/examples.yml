@@ -25,7 +25,7 @@ jobs:
       - name: Compiling and testing ${{ matrix.examples }}
         run: |
           cd examples/${{ matrix.examples }}
-          cargo +nightly fmt --all -- --check
+          cargo +nightly fmt -- --check
           cargo +nightly clippy --all-features -- -D warnings
-          cargo +nightly test --all
+          cargo +nightly test
           cargo +nightly build --target wasm32-unknown-unknown --release

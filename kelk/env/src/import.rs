@@ -1,8 +1,8 @@
 use crate::alloc::vec::Vec;
 use crate::blockchain::Blockchain;
-use crate::error::HostError;
+use crate::error::Error;
 use crate::params::*;
-use crate::storage::Storage;
+use crate::storage::StorageAPI;
 
 #[cfg(not(test))]
 #[link(wasm_import_module = "zarb")]
@@ -37,25 +37,25 @@ pub unsafe fn read_storage(_offset: u32, _ptr: u32, _len: u32) -> i32 {
     0
 }
 
-impl Storage for ContextExt {
-    fn swrite(&self, offset: u32, data: &[u8]) -> Result<(), HostError> {
+impl StorageAPI for ContextExt {
+    fn write(&self, offset: u32, data: &[u8]) -> Result<(), Error> {
         let ptr = data.as_ptr() as u32;
         let len = data.len() as u32;
 
         let code = unsafe { write_storage(offset, ptr, len) };
         if code != 0 {
-            return Err(HostError { code });
+            return Err(Error::HostError(code));
         }
         Ok(())
     }
 
-    fn sread(&self, offset: u32, len: u32) -> Result<Vec<u8>, HostError> {
+    fn read(&self, offset: u32, len: u32) -> Result<Vec<u8>, Error> {
         let vec = crate::alloc::vec![0; len as usize];
         let ptr = vec.as_ptr() as u32;
 
         let code = unsafe { read_storage(offset, ptr, len) };
         if code != 0 {
-            return Err(HostError { code });
+            return Err(Error::HostError(code));
         }
         Ok(vec)
     }

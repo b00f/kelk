@@ -24,3 +24,5 @@
 )]
 
 pub mod collections;
+
+pub extern crate alloc;

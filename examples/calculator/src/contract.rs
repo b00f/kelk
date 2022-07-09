@@ -4,19 +4,19 @@ use kelk_env::context::Context;
 
 fn add(ctx: Context, a: i32, b: i32) -> Result<(), CalcError> {
     ctx.storage
-        .swrite_i32(0, a + b)
+        .write_i32(0, a + b)
         .map_err(|_| CalcError::KelkError)
 }
 
 fn sub(ctx: Context, a: i32, b: i32) -> Result<(), CalcError> {
     ctx.storage
-        .swrite_i32(0, a - b)
+        .write_i32(0, a - b)
         .map_err(|_| CalcError::KelkError)
 }
 
 fn mul(ctx: Context, a: i32, b: i32) -> Result<(), CalcError> {
     ctx.storage
-        .swrite_i32(0, a * b)
+        .write_i32(0, a * b)
         .map_err(|_| CalcError::KelkError)
 }
 
@@ -25,12 +25,12 @@ fn div(ctx: Context, a: i32, b: i32) -> Result<(), CalcError> {
         return Err(CalcError::DivByZero);
     }
     ctx.storage
-        .swrite_i32(0, a / b)
+        .write_i32(0, a / b)
         .map_err(|_| CalcError::KelkError)
 }
 
 fn query_result(ctx: Context) -> Result<i32, CalcError> {
-    ctx.storage.sread_i32(0).map_err(|_| CalcError::KelkError)
+    ctx.storage.read_i32(0).map_err(|_| CalcError::KelkError)
 }
 
 #[cfg(target_arch = "wasm32")]

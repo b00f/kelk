@@ -8,6 +8,8 @@
 use crate::context::{Context, OwnedContext};
 use crate::import::ContextExt;
 use crate::memory::Pointer;
+use crate::storage::Storage;
+use alloc::boxed::Box;
 use minicbor::{Decode, Encode};
 
 /// allocate reserves the given number of bytes in wasm memory and returns a pointer
@@ -68,10 +70,10 @@ fn do_execute<'a, D: Decode<'a>, R: Encode, E: Encode>(
 }
 
 /// Make context instance
-pub(crate) fn make_context() -> OwnedContext<ContextExt, ContextExt> {
+pub(crate) fn make_context() -> OwnedContext<ContextExt> {
     OwnedContext {
         blockchain: ContextExt::new(),
-        storage: ContextExt::new(),
+        storage: Storage::new(Box::new(ContextExt::new())),
     }
 }
 

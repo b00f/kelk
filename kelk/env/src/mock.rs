@@ -1,24 +1,36 @@
 //! Mocking Context for testing contracts
 
-use crate::error::HostError;
-use crate::{blockchain::Blockchain, context::OwnedContext, params::ParamType, storage::Storage};
+use crate::error::Error;
+use crate::storage::Storage;
+use crate::{
+    blockchain::Blockchain, context::OwnedContext, params::ParamType, storage::StorageAPI,
+};
+use alloc::boxed::Box;
 use alloc::vec::Vec;
 use core::cell::RefCell;
 
-/// makes a mocked context
-pub fn mock_context(storage_size: usize) -> OwnedContext<MockBlockchain, MockStorage> {
+/// mocks the context for testing
+pub fn mock_context(storage_size: usize) -> OwnedContext<MockBlockchain> {
     OwnedContext {
         blockchain: MockBlockchain::new(),
-        storage: MockStorage::new(storage_size),
+        storage: mock_storage(storage_size),
     }
 }
 
-/// `MockStorage` mocks the storage for testing purpose.
-pub struct MockStorage {
+/// mocks the storage for testing
+pub fn mock_storage(storage_size: usize) -> Storage {
+    let storage = MockStorageAPI::new(storage_size);
+    Storage {
+        api: Box::new(storage),
+    }
+}
+
+/// mocks the storage for testing purpose.
+pub struct MockStorageAPI {
     storage: RefCell<Vec<u8>>,
 }
 
-impl MockStorage {
+impl MockStorageAPI {
     /// instantiates a new storage mock
     pub fn new(size: usize) -> Self {
         let storage = RefCell::new(alloc::vec![0; size].to_vec());
@@ -48,10 +60,10 @@ impl Blockchain for MockBlockchain {
     }
 }
 
-impl Storage for MockStorage {
-    fn swrite(&self, offset: u32, data: &[u8]) -> Result<(), HostError> {
+impl StorageAPI for MockStorageAPI {
+    fn write(&self, offset: u32, data: &[u8]) -> Result<(), Error> {
         if offset as usize + data.len() > self.storage.borrow().len() {
-            return Err(HostError { code: 1 });
+            return Err(Error::GenericError("overflowed"));
         }
         for (i, d) in data.iter().enumerate() {
             self.storage.borrow_mut()[i + offset as usize] = *d;
@@ -59,16 +71,11 @@ impl Storage for MockStorage {
         Ok(())
     }
 
-    fn sread(&self, offset: u32, length: u32) -> Result<Vec<u8>, HostError> {
+    fn read(&self, offset: u32, length: u32) -> Result<Vec<u8>, Error> {
         if (offset + length) as usize > self.storage.borrow().len() {
-            return Err(HostError { code: 1 });
+            return Err(Error::GenericError("overflowed"));
         }
         let c = &self.storage.borrow()[offset as usize..(offset + length) as usize];
         Ok(c.into())
     }
-}
-
-/// mocks the storage
-pub fn mock_storage(storage_size: usize) -> MockStorage {
-    MockStorage::new(storage_size)
 }
