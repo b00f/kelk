@@ -51,5 +51,3 @@ pub fn kelk_derive(_attr: TokenStream, mut item: TokenStream) -> TokenStream {
     item.extend(entry);
     item
 }
-
-
