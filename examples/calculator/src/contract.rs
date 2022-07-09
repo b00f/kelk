@@ -1,6 +1,6 @@
 use crate::error::Error;
 use crate::message::{ProcessMsg, QueryMsg, QueryRsp};
-use kelk_derive::kelk_derive;
+use kelk_env::kelk_derive;
 use kelk_env::context::Context;
 
 fn add(ctx: Context, a: i32, b: i32) -> Result<(), Error> {

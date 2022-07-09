@@ -4,6 +4,7 @@ version = "0.2.2"
 edition = "2021"
 authors = ["Zarb development team <admin@zarb.network>"]
 license = "MIT"
+homepage = "https://zarb.network/"
 repository = "https://github.com/zarbchan/kelk"
 description = "Kelk-env is a Low-level interface for interacting with Tanour (Wasm executor) in Zarb blockchain."
 
@@ -11,7 +12,7 @@ description = "Kelk-env is a Low-level interface for interacting with Tanour (Wa
 [dependencies]
 minicbor = { version = "0.11", features = ["half", "derive"] }
 minicbor-derive = "0.7"
-kelk-derive = { path = "../derive" }
+kelk-derive = "0.2.0"
 doc-comment = "0.3"
 
 
