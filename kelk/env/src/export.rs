@@ -36,13 +36,13 @@ pub fn do_instantiate<'a, D: Decode<'a>, E: Encode>(
     do_execute(instantiate_fn, msg_ptr)
 }
 
-/// do_process_msg should be wrapped in an external "C" export,
+/// do_process should be wrapped in an external "C" export,
 /// containing a contract-specific function as arg.
-pub fn do_process_msg<'a, D: Decode<'a>, E: Encode>(
-    process_msg_fn: &dyn Fn(Context, D) -> Result<(), E>,
+pub fn do_process<'a, D: Decode<'a>, E: Encode>(
+    process_fn: &dyn Fn(Context, D) -> Result<(), E>,
     msg_ptr: u64,
 ) -> u64 {
-    do_execute(process_msg_fn, msg_ptr)
+    do_execute(process_fn, msg_ptr)
 }
 
 /// do_query should be wrapped in an external "C" export,
@@ -125,11 +125,11 @@ mod tests {
     }
 
     #[wasm_bindgen_test]
-    fn test_process_msg() {
+    fn test_process() {
         let msg_data = vec![0x00]; // http://cbor.me/?bytes=8100
         let msg_ptr = Pointer::release_buffer(msg_data);
 
-        let res_ptr = do_process_msg(
+        let res_ptr = do_process(
             &|_: Context, _: i32| -> Result<(), i32> { Ok(()) },
             msg_ptr.as_u64(),
         );
@@ -139,11 +139,11 @@ mod tests {
     }
 
     #[wasm_bindgen_test]
-    fn test_process_msg_error() {
+    fn test_process_error() {
         let msg_data = vec![0x00]; // http://cbor.me/?bytes=8100
         let msg_ptr = Pointer::release_buffer(msg_data);
 
-        let res_ptr = do_process_msg(
+        let res_ptr = do_process(
             &|_: Context, _: i32| -> Result<(), i32> { Err(0x0e) },
             msg_ptr.as_u64(),
         );

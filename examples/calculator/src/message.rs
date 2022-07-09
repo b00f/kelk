@@ -1,7 +1,7 @@
 use minicbor::{Decode, Encode};
 
 #[derive(Clone, Debug, Encode, Decode)]
-pub enum ProcMsg {
+pub enum ProcessMsg {
     #[n(0)]
     Add {
         #[n(0)]
