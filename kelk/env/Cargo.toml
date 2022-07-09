@@ -4,6 +4,7 @@ version = "0.2.2"
 edition = "2021"
 authors = ["Zarb development team <admin@zarb.network>"]
 license = "MIT"
+homepage = "https://zarb.network/"
 repository = "https://github.com/zarbchan/kelk"
 description = "Kelk-env is a Low-level interface for interacting with Tanour (Wasm executor) in Zarb blockchain."
 
