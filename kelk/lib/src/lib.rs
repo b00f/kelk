@@ -1,4 +1,4 @@
-//! Kelk-lib is the standard library for wasm based contracts in [Zarb](https://zarb.network) blockchain.
+//! Kelk-lib is the standard library for writting wasm based contracts in [Zarb](https://zarb.network) blockchain.
 //!
 #![no_std]
 #![deny(
@@ -24,5 +24,6 @@
 )]
 
 pub mod collections;
+pub mod types;
 
 pub extern crate alloc;
