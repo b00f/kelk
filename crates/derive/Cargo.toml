@@ -1,6 +1,6 @@
 [package]
 name = "kelk-derive"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 authors = ["Zarb development team <admin@zarb.network>"]
 license = "MIT"

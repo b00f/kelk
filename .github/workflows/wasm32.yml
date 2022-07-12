@@ -20,9 +20,9 @@ jobs:
           # installing wasm-pack (https://rustwasm.github.io/wasm-pack/installer/)
           curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
-      - name: Testing kelk-env (wasm32)
+      - name: Testing env crate (wasm32)
         run: |
-          cd kelk/env
+          cd crates/env
           rustup run nightly $HOME/.cargo/bin/wasm-pack test --node
 
 

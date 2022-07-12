@@ -5,10 +5,8 @@ edition = "2021"
 authors = ["Zarb development team <admin@zarb.network>"]
 
 [dependencies]
-kelk-env = { path = "../../kelk/env" }
-kelk-derive = { path = "../../kelk/derive" }
-minicbor = { version = "0.11.1", features = ["half", "derive"] }
-minicbor-derive = "0.7.1"
+kelk = { path = "../../crates/kelk" }
+minicbor = { version = "0.18.0", features = ["half", "derive"] }
 wee_alloc = { version = "0.4", default-features = false }
 
 [lib]

@@ -23,28 +23,23 @@
     unused_extern_crates
 )]
 
-pub mod blockchain;
-pub mod context;
+pub mod api;
 pub mod error;
-pub mod mock;
-pub mod params;
-pub mod storage;
+
+pub use api::BlockchainAPI;
+pub use api::StorageAPI;
+pub use error::Error;
 
 #[cfg(target_arch = "wasm32")]
 mod memory;
 
 #[cfg(target_arch = "wasm32")]
-mod import;
+pub mod import;
 
 #[cfg(target_arch = "wasm32")]
 pub mod export;
 
 #[cfg(target_arch = "wasm32")]
-pub use crate::export::{do_instantiate, do_process, do_query};
-
-pub use kelk_derive::kelk_derive;
-
-#[macro_use]
-extern crate doc_comment;
+pub use crate::import::{do_instantiate, do_process, do_query};
 
 pub extern crate alloc;

@@ -3,17 +3,16 @@
 use alloc::boxed::Box;
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
-
-use crate::error::Error;
-use ::core::result::Result;
 use core::mem::{self, size_of};
+use core::result::Result;
 use core::slice;
 use core::str::from_utf8;
+use kelk_env::{Error, StorageAPI};
 
 macro_rules! impl_num {
     ($ty:ty, $size:literal, $read_fn:ident, $write_fn:ident) => {
         doc_comment! {
-            concat!("reads ", stringify!($size), " byte(s) from storage file at the given offset and converts it to ", stringify!($ty),"."
+            concat!("reads ", stringify!($size), " byte(s) from storage file at the given `offset` and converts it to ", stringify!($ty),"."
             ),
             #[inline]
             pub fn $read_fn(&self, offset: u32) -> Result<$ty, Error> {
@@ -24,7 +23,7 @@ macro_rules! impl_num {
         }
 
         doc_comment! {
-                concat!("converts ", stringify!($ty)," to ", stringify!($size), " byte(s) and writes into storage file at the given offset."
+                concat!("converts ", stringify!($ty)," to ", stringify!($size), " byte(s) and writes it into storage file at the given `offset`."
                 ),
             #[inline]
             pub fn $write_fn(&self, offset: u32, value: $ty) -> Result<(), Error> {
@@ -32,15 +31,6 @@ macro_rules! impl_num {
             }
         }
     };
-}
-
-/// the storage APIs that provided by the host
-pub trait StorageAPI {
-    /// writes `data` into the storage file at the given offset
-    fn read(&self, offset: u32, len: u32) -> Result<Vec<u8>, Error>;
-
-    /// reads `data` from the storage file at the given offset and length
-    fn write(&self, offset: u32, data: &[u8]) -> Result<(), Error>;
 }
 
 /// Storage object
@@ -65,7 +55,7 @@ impl Storage {
     impl_num!(i32, 4, read_i32, write_i32);
     impl_num!(i64, 8, read_i64, write_i64);
 
-    /// reads 1 byte from storage file at the given offset and converts it to bool.
+    /// reads 1 byte from storage file at the given `offset` and converts it to bool.
     #[inline]
     pub fn read_bool(&self, offset: u32) -> Result<bool, Error> {
         match self.read_i8(offset)? {
@@ -74,7 +64,7 @@ impl Storage {
         }
     }
 
-    /// converts bool to 1 byte(s) and writes into storage file at the given offset.
+    /// converts bool to 1 byte and writes it into storage file at the given `offset`.
     #[inline]
     pub fn write_bool(&self, offset: u32, value: bool) -> Result<(), Error> {
         match value {
@@ -83,7 +73,7 @@ impl Storage {
         }
     }
 
-    /// reads string from the storage file at the given offset.
+    /// reads string from the storage file at the given `offset`.
     #[inline]
     pub fn read_string(&self, offset: u32, max_len: u32) -> Result<String, Error> {
         let data = self.read(offset, max_len)?;
@@ -93,7 +83,7 @@ impl Storage {
         Ok(str.to_string())
     }
 
-    /// write string to the storage file at the given offset.
+    /// write string to the storage file at the given `offset`.
     /// if the length string is greater than max_length it wil be truncated to the max length.
     #[inline]
     pub fn write_string(&self, offset: u32, value: &str, max_len: u32) -> Result<(), Error> {
@@ -105,13 +95,13 @@ impl Storage {
         self.write(offset, data)
     }
 
-    /// reads struct T from the storage file at the given offset
+    /// reads struct T from the storage file at the given `offset`.
     pub fn read_struct<T: Sized>(&self, offset: u32) -> Result<T, Error> {
         let data = self.read(offset, size_of::<T>() as u32)?;
         Ok(unsafe { core::ptr::read(data.as_ptr() as *const _) })
     }
 
-    /// writes struct T to the storage file at the given offset
+    /// writes struct `T` to the storage file at the given `offset`.
     pub fn write_struct<T: Sized>(&self, offset: u32, st: &T) -> Result<(), Error> {
         let p: *const T = st;
         let p: *const u8 = p as *const u8; // convert between pointer types
@@ -120,20 +110,20 @@ impl Storage {
         self.write(offset, b)
     }
 
-    /// writes `data` into the storage file at the given offset
+    /// reads bytes from the storage file at the given `offset` up to the given `length`.
     pub fn read(&self, offset: u32, len: u32) -> Result<Vec<u8>, Error> {
         self.api.read(offset, len)
     }
 
-    /// reads `data` from the storage file at the given offset and length
+    /// writes `data` into the storage file at the given `offset`.
     pub fn write(&self, offset: u32, data: &[u8]) -> Result<(), Error> {
         self.api.write(offset, data)
     }
 }
 
 #[cfg(test)]
-mod tests {
-    use crate::mock::mock_storage;
+pub mod tests {
+    use crate::storage::mock::mock_storage;
 
     #[test]
     fn test_negative_integers() {

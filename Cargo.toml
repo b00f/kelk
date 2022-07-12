@@ -1,8 +1,8 @@
 [workspace]
 members = [
-    "kelk/derive",
-    "kelk/env",
-    "kelk/lib",
+    "crates/derive",
+    "crates/env",
+    "crates/kelk",
 ]
 exclude = [
     "examples/",

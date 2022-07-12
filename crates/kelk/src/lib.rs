@@ -22,7 +22,18 @@
     trivial_numeric_casts,
     unused_extern_crates
 )]
+#![allow(clippy::module_inception)]
 
-pub mod collections;
+pub mod blockchain;
+pub mod context;
+pub mod storage;
+
+pub use kelk_derive::kelk_derive;
+
+#[cfg(target_arch = "wasm32")]
+pub use kelk_env::import::*;
 
 pub extern crate alloc;
+
+#[macro_use]
+extern crate doc_comment;

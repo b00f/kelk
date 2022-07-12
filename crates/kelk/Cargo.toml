@@ -1,13 +1,17 @@
 [package]
-name = "kelk-lib"
+name = "kelk"
 version = "0.2.0"
 edition = "2021"
 authors = ["Zarb development team <admin@zarb.network>"]
 license = "MIT"
 homepage = "https://zarb.network/"
 repository = "https://github.com/zarbchan/kelk"
-description = "Kelk-lib is the standard librry for wasm based contracts in Zarb blockchain."
+description = "Kelk is the standard librry for wasm based contracts in Zarb blockchain."
 
 
 [dependencies]
-kelk-env = "0.2.2"
+kelk-env = { path = "../env" }
+kelk-derive = { path = "../derive" }
+
+doc-comment = "0.3"
+

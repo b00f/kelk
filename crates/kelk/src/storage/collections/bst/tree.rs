@@ -4,10 +4,10 @@
 use super::error::Error;
 use super::header::Header;
 use super::node::Node;
+use crate::storage::Storage;
 use core::marker::PhantomData;
 use core::mem::size_of;
 use core::result::Result;
-use kelk_env::storage::Storage;
 
 /// The instance of Storage Binary Search Tree
 pub struct StorageBST<'a, K, V>
@@ -158,7 +158,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use kelk_env::mock::mock_storage;
+    use crate::storage::mock::mock_storage;
 
     use super::*;
     use core::mem::size_of;
