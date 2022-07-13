@@ -1,10 +1,12 @@
 //! Address type for representing actor address
 use core::result::Result;
 
+use alloc::vec::Vec;
+
 use super::error::Error;
 
 /// Address type
-const ADDRESS_SIZE: usize = 21;
+pub const ADDRESS_SIZE: usize = 21;
 
 /// Address type in Zarb blockchain
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -50,7 +52,22 @@ impl<'a, C> minicbor::Decode<'a, C> for Address {
     }
 }
 
+// TODO: Can we move it into mock?
+/// generates a random address for testing
+pub fn generate_test_address() -> Address {
+    let random_bytes: Vec<u8> = (0..ADDRESS_SIZE).map(|_| rand::random::<u8>()).collect();
+    Address::from_bytes(&random_bytes).unwrap()
+}
+
 #[cfg(test)]
 mod tests {
-    // pub fn generate_test_address() -> Address {}
+    use super::{generate_test_address, Address};
+
+    #[test]
+    fn test_decoding() {
+        let addr1 = generate_test_address();
+        let bytes = minicbor::to_vec(addr1.clone()).unwrap();
+        let addr2 = minicbor::decode::<Address>(&bytes).unwrap();
+        assert_eq!(addr1, addr2);
+    }
 }

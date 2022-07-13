@@ -14,3 +14,4 @@ kelk-env = { path = "../env" }
 kelk-derive = { path = "../derive" }
 minicbor = { version = "0.18", features = ["half", "derive", "alloc"] }
 doc-comment = "0.3"
+rand = "0.4"
