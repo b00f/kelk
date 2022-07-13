@@ -1,8 +1,7 @@
 //! Address type for representing actor address
 use core::result::Result;
-
-use alloc::vec::Vec;
-
+use rand::{Rng, SeedableRng};
+use rand::rngs::SmallRng;
 use super::error::Error;
 
 /// Address type
@@ -55,8 +54,10 @@ impl<'a, C> minicbor::Decode<'a, C> for Address {
 // TODO: Can we move it into mock?
 /// generates a random address for testing
 pub fn generate_test_address() -> Address {
-    let random_bytes: Vec<u8> = (0..ADDRESS_SIZE).map(|_| rand::random::<u8>()).collect();
-    Address::from_bytes(&random_bytes).unwrap()
+    let mut small_rng = SmallRng::seed_from_u64(0);
+    let mut buf = [0u8; ADDRESS_SIZE];
+    small_rng.fill(&mut buf);
+    Address::from_bytes(&buf).unwrap()
 }
 
 #[cfg(test)]
