@@ -1,5 +1,6 @@
 //! Storage trait to read and write primitives
 
+use super::error::Error;
 use alloc::boxed::Box;
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
@@ -7,7 +8,7 @@ use core::mem::{self, size_of};
 use core::result::Result;
 use core::slice;
 use core::str::from_utf8;
-use kelk_env::{Error, StorageAPI};
+use kelk_env::StorageAPI;
 
 macro_rules! impl_num {
     ($ty:ty, $size:literal, $read_fn:ident, $write_fn:ident) => {
@@ -15,7 +16,7 @@ macro_rules! impl_num {
             concat!("reads ", stringify!($size), " byte(s) from storage file at the given `offset` and converts it to ", stringify!($ty),"."
             ),
             #[inline]
-            pub fn $read_fn(&self, offset: u32) -> Result<$ty, Error> {
+            pub fn $read_fn(&self, offset: u32) -> Result<$ty,Error> {
                 Ok(<$ty>::from_be_bytes(
                     self.read(offset, $size)?.try_into().unwrap(),
                 ))
@@ -26,7 +27,7 @@ macro_rules! impl_num {
                 concat!("converts ", stringify!($ty)," to ", stringify!($size), " byte(s) and writes it into storage file at the given `offset`."
                 ),
             #[inline]
-            pub fn $write_fn(&self, offset: u32, value: $ty) -> Result<(), Error> {
+            pub fn $write_fn(&self, offset: u32, value: $ty) -> Result<(),Error> {
                 self.write(offset, &value.to_be_bytes())
             }
         }
@@ -78,13 +79,13 @@ impl Storage {
     pub fn read_string(&self, offset: u32, max_len: u32) -> Result<String, Error> {
         let data = self.read(offset, max_len)?;
         let mut iter = data.split(|e| e == &0);
-        let str = from_utf8(iter.next().unwrap())
-            .map_err(|_| Error::GenericError("Invalid utf8 character"))?;
+        let str =
+            from_utf8(iter.next().unwrap()).map_err(|err| Error::GenericError(err.to_string()))?;
         Ok(str.to_string())
     }
 
     /// write string to the storage file at the given `offset`.
-    /// if the length string is greater than max_length it wil be truncated to the max length.
+    /// if the length string is greater than `max_len` it wil be truncated to the `max_len`.
     #[inline]
     pub fn write_string(&self, offset: u32, value: &str, max_len: u32) -> Result<(), Error> {
         let mut data = value.as_bytes();
@@ -95,13 +96,15 @@ impl Storage {
         self.write(offset, data)
     }
 
-    /// reads struct T from the storage file at the given `offset`.
+    /// reads struct `T` from the storage file at the given `offset`.
+    /// Note that struct `T` should be `Sized`.
     pub fn read_struct<T: Sized>(&self, offset: u32) -> Result<T, Error> {
         let data = self.read(offset, size_of::<T>() as u32)?;
         Ok(unsafe { core::ptr::read(data.as_ptr() as *const _) })
     }
 
     /// writes struct `T` to the storage file at the given `offset`.
+    /// Note that struct `T` should be `Sized`.
     pub fn write_struct<T: Sized>(&self, offset: u32, st: &T) -> Result<(), Error> {
         let p: *const T = st;
         let p: *const u8 = p as *const u8; // convert between pointer types
@@ -112,12 +115,12 @@ impl Storage {
 
     /// reads bytes from the storage file at the given `offset` up to the given `length`.
     pub fn read(&self, offset: u32, len: u32) -> Result<Vec<u8>, Error> {
-        self.api.read(offset, len)
+        Ok(self.api.read(offset, len)?)
     }
 
     /// writes `data` into the storage file at the given `offset`.
     pub fn write(&self, offset: u32, data: &[u8]) -> Result<(), Error> {
-        self.api.write(offset, data)
+        Ok(self.api.write(offset, data)?)
     }
 }
 

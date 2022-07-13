@@ -12,6 +12,6 @@ description = "Kelk is the standard librry for wasm based contracts in Zarb bloc
 [dependencies]
 kelk-env = { path = "../env" }
 kelk-derive = { path = "../derive" }
-
+minicbor = { version = "0.18", features = ["half", "derive", "alloc"] }
 doc-comment = "0.3"
-
+rand = { version = "0.8", features = ["small_rng"], default-features = false }

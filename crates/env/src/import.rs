@@ -5,7 +5,7 @@
 
 use crate::alloc::vec::Vec;
 use crate::api::{BlockchainAPI, StorageAPI};
-use crate::error::Error;
+use crate::error::HostError;
 use crate::memory::Pointer;
 use minicbor::{Decode, Encode};
 
@@ -62,38 +62,38 @@ impl Default for Kelk {
 }
 
 impl StorageAPI for Kelk {
-    fn write(&self, offset: u32, data: &[u8]) -> Result<(), Error> {
+    fn write(&self, offset: u32, data: &[u8]) -> Result<(), HostError> {
         let ptr = data.as_ptr() as u32;
         let len = data.len() as u32;
 
         let code = unsafe { write_storage(offset, ptr, len) };
         if code != 0 {
-            return Err(Error::HostError(code));
+            return Err(HostError { code });
         }
         Ok(())
     }
 
-    fn read<'a>(&self, offset: u32, len: u32) -> Result<Vec<u8>, Error> {
+    fn read<'a>(&self, offset: u32, len: u32) -> Result<Vec<u8>, HostError> {
         let vec = crate::alloc::vec![0; len as usize];
         let ptr = vec.as_ptr() as u32;
 
         let code = unsafe { read_storage(offset, ptr, len) };
         if code != 0 {
-            return Err(Error::HostError(code));
+            return Err(HostError { code });
         }
         Ok(vec.to_vec())
     }
 }
 
 impl BlockchainAPI for Kelk {
-    fn get_param<'a>(&self, param_id: u32) -> Result<Vec<u8>, Error> {
+    fn get_param<'a>(&self, param_id: u32) -> Result<Vec<u8>, HostError> {
         let len = 32; // maximum size of parameter value is 32 bytes
         let vec = crate::alloc::vec![0; len as usize];
         let ptr = vec.as_ptr() as u32;
 
         let code = unsafe { get_param(param_id, ptr, len) };
         if code != 0 {
-            return Err(Error::HostError(code));
+            return Err(HostError { code });
         }
         Ok(vec.to_vec())
     }
