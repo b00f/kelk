@@ -1,6 +1,5 @@
 //! Mocking the blockchain for testing purpose
 
-use super::error::Error;
 use alloc::boxed::Box;
 use alloc::vec::Vec;
 use core::result::Result;

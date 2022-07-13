@@ -30,3 +30,12 @@ impl OwnedContext {
         }
     }
 }
+/// mocks the context for testing
+pub fn mock_context(storage_size: usize) -> OwnedContext {
+    use crate::{blockchain::mock::mock_blockchain, storage::mock::mock_storage};
+
+    OwnedContext {
+        blockchain: mock_blockchain(),
+        storage: mock_storage(storage_size),
+    }
+}
