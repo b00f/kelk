@@ -28,7 +28,7 @@ pub mod error;
 
 pub use api::BlockchainAPI;
 pub use api::StorageAPI;
-pub use error::Error;
+pub use error::HostError;
 
 #[cfg(target_arch = "wasm32")]
 mod memory;

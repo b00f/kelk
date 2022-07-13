@@ -1,9 +1,10 @@
 //! Mocking the blockchain for testing purpose
 
+use super::error::Error;
 use alloc::boxed::Box;
 use alloc::vec::Vec;
 use core::result::Result;
-use kelk_env::{BlockchainAPI, Error};
+use kelk_env::{BlockchainAPI, HostError};
 
 use super::Blockchain;
 
@@ -24,7 +25,7 @@ impl Default for MockBlockchain {
 }
 
 impl BlockchainAPI for MockBlockchain {
-    fn get_param<'a>(&self, _param_id: u32) -> Result<Vec<u8>, Error> {
+    fn get_param<'a>(&self, _param_id: u32) -> Result<Vec<u8>, HostError> {
         todo!()
     }
 }

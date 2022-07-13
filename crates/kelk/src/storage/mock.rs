@@ -3,7 +3,7 @@
 use alloc::boxed::Box;
 use alloc::vec::Vec;
 use core::{cell::RefCell, result::Result};
-use kelk_env::{Error, StorageAPI};
+use kelk_env::{HostError, StorageAPI};
 
 use super::Storage;
 
@@ -21,9 +21,9 @@ impl MockStorage {
 }
 
 impl StorageAPI for MockStorage {
-    fn write(&self, offset: u32, data: &[u8]) -> Result<(), Error> {
+    fn write(&self, offset: u32, data: &[u8]) -> Result<(), HostError> {
         if offset as usize + data.len() > self.storage.borrow().len() {
-            return Err(Error::GenericError("overflowed"));
+            return Err(HostError { code: -1 });
         }
         for (i, d) in data.iter().enumerate() {
             self.storage.borrow_mut()[i + offset as usize] = *d;
@@ -31,9 +31,9 @@ impl StorageAPI for MockStorage {
         Ok(())
     }
 
-    fn read(&self, offset: u32, length: u32) -> Result<Vec<u8>, Error> {
+    fn read(&self, offset: u32, length: u32) -> Result<Vec<u8>, HostError> {
         if (offset + length) as usize > self.storage.borrow().len() {
-            return Err(Error::GenericError("overflowed"));
+            return Err(HostError { code: -1 });
         }
         let c = &self.storage.borrow()[offset as usize..(offset + length) as usize];
         Ok(c.into())

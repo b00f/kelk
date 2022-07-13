@@ -1,8 +1,8 @@
 //! Storage Vector, is a Vector or Array that instead of using Random Access Memory,
 //! Read and writes from contract's storage. Therefore it's permanently store inside contract's storage.
 
-use super::error::Error;
 use super::header::Header;
+use crate::storage::error::Error;
 use crate::storage::Storage;
 use core::marker::PhantomData;
 use core::mem::size_of;
