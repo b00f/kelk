@@ -42,7 +42,7 @@ extern "C" {
     /// `len` is the length of data.
     ///
     /// If the operation is successful it returns 0, otherwise it reruns the error code.
-    fn get_param(param_id: u32, ptr: u32, len: u32) -> i32;
+    fn get_param(param_id: u32, ptr: *mut u32, len: *mut u32) -> i32;
 }
 
 /// The instant of Kelk.
@@ -73,7 +73,7 @@ impl StorageAPI for Kelk {
         Ok(())
     }
 
-    fn read<'a>(&self, offset: u32, len: u32) -> Result<Vec<u8>, HostError> {
+    fn read(&self, offset: u32, len: u32) -> Result<Vec<u8>, HostError> {
         let vec = crate::alloc::vec![0; len as usize];
         let ptr = vec.as_ptr() as u32;
 
@@ -86,16 +86,16 @@ impl StorageAPI for Kelk {
 }
 
 impl BlockchainAPI for Kelk {
-    fn get_param<'a>(&self, param_id: u32) -> Result<Vec<u8>, HostError> {
-        let len = 32; // maximum size of parameter value is 32 bytes
-        let vec = crate::alloc::vec![0; len as usize];
-        let ptr = vec.as_ptr() as u32;
+    fn get_param(&self, param_id: u32) -> Result<Vec<u8>, HostError> {
+        let mut len = 0;
+        let mut ptr = 0;
 
-        let code = unsafe { get_param(param_id, ptr, len) };
+        let code = unsafe { get_param(param_id, &mut ptr, &mut len) };
         if code != 0 {
             return Err(HostError { code });
         }
-        Ok(vec.to_vec())
+        let slice = unsafe { core::slice::from_raw_parts(ptr as *const u8, len as usize) };
+        Ok(slice.to_vec())
     }
 }
 

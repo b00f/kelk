@@ -1,6 +1,6 @@
 //! Mocking the blockchain for testing purpose
 
-use alloc::boxed::Box;
+use alloc::{collections::BTreeMap, boxed::Box};
 use alloc::vec::Vec;
 use core::result::Result;
 use kelk_env::{BlockchainAPI, HostError};
@@ -8,12 +8,16 @@ use kelk_env::{BlockchainAPI, HostError};
 use super::Blockchain;
 
 /// mocks the blockchain for testing purpose.
-pub struct MockBlockchain {}
+pub struct MockBlockchain {
+    map: BTreeMap<u32, Vec<u8>>,
+}
 
 impl MockBlockchain {
     /// instantiates a new blockchain mock
     pub fn new() -> Self {
-        Self {}
+        Self {
+            map: BTreeMap::new(),
+        }
     }
 }
 
@@ -24,8 +28,8 @@ impl Default for MockBlockchain {
 }
 
 impl BlockchainAPI for MockBlockchain {
-    fn get_param<'a>(&self, _param_id: u32) -> Result<Vec<u8>, HostError> {
-        todo!()
+    fn get_param<'a>(&self, param_id: u32) -> Result<Vec<u8>, HostError> {
+        Ok(self.map.get(&param_id).unwrap().to_vec())
     }
 }
 

@@ -21,7 +21,7 @@ where
     _phantom: PhantomData<(K, V)>,
 }
 
-impl<'a, K, V> StorageBST<'a, K, V>
+impl<'a,  K, V> StorageBST<'a,  K, V>
 where
     K: Sized + Ord,
     V: Sized,

@@ -19,7 +19,7 @@ where
     _phantom: PhantomData<V>,
 }
 
-impl<'a, V> StorageVec<'a, V>
+impl<'a,  V> StorageVec<'a, V>
 where
     V: Sized,
 {
