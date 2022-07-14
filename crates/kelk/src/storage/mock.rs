@@ -1,11 +1,10 @@
 //! Mocking the storage for testing purpose
 
+use super::Storage;
 use alloc::boxed::Box;
 use alloc::vec::Vec;
 use core::{cell::RefCell, result::Result};
 use kelk_env::{HostError, StorageAPI};
-
-use super::Storage;
 
 /// mocks the storage for testing purpose.
 pub struct MockStorage {
@@ -42,8 +41,5 @@ impl StorageAPI for MockStorage {
 
 /// mocks the storage for testing
 pub fn mock_storage(storage_size: usize) -> Storage {
-    let storage = MockStorage::new(storage_size);
-    Storage {
-        api: Box::new(storage),
-    }
+    Storage::new(Box::new(MockStorage::new(storage_size)))
 }

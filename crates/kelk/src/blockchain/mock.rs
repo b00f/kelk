@@ -1,11 +1,10 @@
 //! Mocking the blockchain for testing purpose
 
-use alloc::{collections::BTreeMap, boxed::Box};
+use super::Blockchain;
 use alloc::vec::Vec;
+use alloc::{boxed::Box, collections::BTreeMap};
 use core::result::Result;
 use kelk_env::{BlockchainAPI, HostError};
-
-use super::Blockchain;
 
 /// mocks the blockchain for testing purpose.
 pub struct MockBlockchain {
@@ -35,8 +34,5 @@ impl BlockchainAPI for MockBlockchain {
 
 /// mocks the blockchain for testing
 pub fn mock_blockchain() -> Blockchain {
-    let blockchain = MockBlockchain::new();
-    Blockchain {
-        api: Box::new(blockchain),
-    }
+    Blockchain::new(Box::new(MockBlockchain::new()))
 }

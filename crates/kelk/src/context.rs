@@ -1,23 +1,22 @@
 //! The context for running contract actor
 
 use crate::{blockchain::Blockchain, storage::Storage};
-use alloc::boxed::Box;
 
-/// `Context` owns the `ContextAPI` reference.
+/// `Context` holds the references to the storage and blockchain objects
+/// It can be easily mocked for the testing environment.
 pub struct Context<'a> {
-    /// The instance of storage APIs
+    /// A reference to the instance Storage
     pub storage: &'a Storage,
-    /// The instance of Blockchain APIs
+    /// A reference to the instance Blockchain
     pub blockchain: &'a Blockchain,
 }
 
-/// `OwnedContext` owns the `ContextAPI` instance. It allow dependency injection at runtime.
-/// This cannot be copied or cloned since `api` doesn't implement Copy and Clone traits.
-/// It can be easily mocked for the testing environment.
-pub struct OwnedContext{
-    /// The instance of mocked Storage
-    pub storage: Box<Storage>,
-    /// The instance of mocked Blockchain
+/// `OwnedContext` owns the instances.
+/// This cannot be copied or cloned since it doesn't implement Copy and Clone traits.
+pub struct OwnedContext {
+    /// The instance of Storage
+    pub storage: Storage,
+    /// The instance of Blockchain
     pub blockchain: Blockchain,
 }
 
@@ -36,6 +35,6 @@ pub fn mock_context(storage_size: usize) -> OwnedContext {
 
     OwnedContext {
         blockchain: mock_blockchain(),
-        storage: Box::new(mock_storage(storage_size)),
+        storage: mock_storage(storage_size),
     }
 }
