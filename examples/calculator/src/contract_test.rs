@@ -1,5 +1,5 @@
 use super::*;
-use kelk::context::mock_context;
+use kelk::mock::mock_context;
 
 #[test]
 fn test_add() {

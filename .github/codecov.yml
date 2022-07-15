@@ -12,3 +12,5 @@ coverage:
         target: auto
         threshold: "10%"
 
+ignore:
+  - "*/mock.rs"

@@ -26,6 +26,7 @@
 
 pub mod blockchain;
 pub mod context;
+pub mod mock;
 pub mod storage;
 
 pub use kelk_derive::kelk_derive;

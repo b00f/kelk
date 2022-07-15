@@ -2,40 +2,29 @@
 
 use crate::{blockchain::Blockchain, storage::Storage};
 
-/// `Context` owns the `ContextAPI` reference.
+/// `Context` holds the references to the storage and blockchain objects.
+/// It can be easily mocked for the testing environment.
 pub struct Context<'a> {
-    /// The instance of Blockchain APIs
-    pub blockchain: &'a Blockchain,
-
-    /// The instance of storage APIs
+    /// A reference to the instance Storage
     pub storage: &'a Storage,
+    /// A reference to the instance Blockchain
+    pub blockchain: &'a Blockchain,
 }
 
-/// `OwnedContext` owns the `ContextAPI` instance. It allow dependency injection at runtime.
-/// This cannot be copied or cloned since `api` doesn't implement Copy and Clone traits.
-/// It can be easily mocked for the testing environment.
+/// `OwnedContext` owns the instances.
 pub struct OwnedContext {
-    /// The instance of mocked Blockchain
-    pub blockchain: Blockchain,
-    /// The instance of mocked Storage
+    /// The instance of Storage
     pub storage: Storage,
+    /// The instance of Blockchain
+    pub blockchain: Blockchain,
 }
 
 impl OwnedContext {
     /// returns the context as reference
-    pub fn as_ref(&'_ self) -> Context<'_> {
+    pub fn as_ref(&self) -> Context<'_> {
         Context {
-            blockchain: &self.blockchain,
             storage: &self.storage,
+            blockchain: &self.blockchain,
         }
-    }
-}
-/// mocks the context for testing
-pub fn mock_context(storage_size: usize) -> OwnedContext {
-    use crate::{blockchain::mock::mock_blockchain, storage::mock::mock_storage};
-
-    OwnedContext {
-        blockchain: mock_blockchain(),
-        storage: mock_storage(storage_size),
     }
 }

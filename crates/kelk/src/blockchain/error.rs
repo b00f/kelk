@@ -1,4 +1,4 @@
-//! Error types for Storage Binary Tree
+//! Blockchain error types
 
 use alloc::string::String;
 use core::fmt::Debug;

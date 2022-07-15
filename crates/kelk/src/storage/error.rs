@@ -1,4 +1,4 @@
-//! Error types for Storage Binary Tree
+//! Storage error types
 
 use alloc::string::String;
 use core::fmt::{self, Debug};

@@ -1,5 +1,7 @@
 //! Defining the Kelk API trait.
 
+use core::any::Any;
+
 use crate::error::HostError;
 use alloc::vec::Vec;
 
@@ -13,6 +15,10 @@ pub trait StorageAPI {
     /// This API requests the host to write `data` into the storage file
     /// at the given `offset`
     fn write(&self, offset: u32, data: &[u8]) -> Result<(), HostError>;
+
+    /// It is useful for downcasting the trait to the underling struct.
+    /// For example we can downcast the trait to the mocked object.
+    fn as_any(&self) -> &dyn Any;
 }
 
 /// the blockchain APIs that should be provided by the host.
@@ -21,4 +27,8 @@ pub trait BlockchainAPI {
     /// This API requests the host to return the associated value to the given
     /// `param_id`.
     fn get_param(&self, param_id: u32) -> Result<Vec<u8>, HostError>;
+
+    /// It is useful for downcasting the trait to the underling struct.
+    /// For example we can downcast the trait to the mocked object.
+    fn as_any(&self) -> &dyn Any;
 }
