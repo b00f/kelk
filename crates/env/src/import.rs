@@ -167,7 +167,7 @@ pub unsafe fn read_storage(_offset: u32, _ptr: u32, _len: u32) -> i32 {
 
 /// For testing
 #[cfg(test)]
-pub unsafe fn get_param(_param_id: u32, _ptr: u32, _len: u32) -> i32 {
+pub unsafe fn get_param(_param_id: u32, _ptr: *mut u32, _len: *mut u32) -> i32 {
     0
 }
 
