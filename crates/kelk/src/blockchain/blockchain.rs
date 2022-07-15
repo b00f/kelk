@@ -13,7 +13,7 @@ const PARAM_ID_TRANSACTION_SIGNER: u32 = 0x0010;
 /// Blockchain object
 pub struct Blockchain {
     /// APIs the provided by th host
-    api: Box<dyn BlockchainAPI>,
+    pub(crate) api: Box<dyn BlockchainAPI>,
 }
 
 impl Blockchain {

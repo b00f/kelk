@@ -3,10 +3,11 @@
 //! Contract actors can call this imported function to interact with the
 //! blockchain and the storage file.
 
-use crate::alloc::vec::Vec;
 use crate::api::{BlockchainAPI, StorageAPI};
 use crate::error::HostError;
 use crate::memory::Pointer;
+use alloc::vec::Vec;
+use core::any::Any;
 use minicbor::{Decode, Encode};
 
 #[cfg(not(test))]
@@ -83,6 +84,10 @@ impl StorageAPI for Kelk {
         }
         Ok(vec.to_vec())
     }
+
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
 }
 
 impl BlockchainAPI for Kelk {
@@ -96,6 +101,10 @@ impl BlockchainAPI for Kelk {
         }
         let slice = unsafe { core::slice::from_raw_parts(ptr as *const u8, len as usize) };
         Ok(slice.to_vec())
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }
 

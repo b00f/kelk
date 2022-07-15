@@ -1,14 +1,18 @@
 //! Mocking the blockchain for testing purpose
 
+use super::address::{Address, ADDRESS_SIZE};
 use super::Blockchain;
 use alloc::vec::Vec;
 use alloc::{boxed::Box, collections::BTreeMap};
+use core::any::Any;
 use core::result::Result;
 use kelk_env::{BlockchainAPI, HostError};
-
+use rand::rngs::SmallRng;
+use rand::{Rng, SeedableRng};
 /// mocks the blockchain for testing purpose.
 pub struct MockBlockchain {
     map: BTreeMap<u32, Vec<u8>>,
+    addr_gen_seed: u64,
 }
 
 impl MockBlockchain {
@@ -16,7 +20,17 @@ impl MockBlockchain {
     pub fn new() -> Self {
         Self {
             map: BTreeMap::new(),
+            addr_gen_seed: 0,
         }
+    }
+
+    /// generates a random address for testing
+    pub fn generate_new_address(&mut self) -> Address {
+        self.addr_gen_seed += 1;
+        let mut small_rng = SmallRng::seed_from_u64(self.addr_gen_seed);
+        let mut buf = [0u8; ADDRESS_SIZE];
+        small_rng.fill(&mut buf);
+        Address::from_bytes(&buf).unwrap()
     }
 }
 
@@ -29,6 +43,10 @@ impl Default for MockBlockchain {
 impl BlockchainAPI for MockBlockchain {
     fn get_param<'a>(&self, param_id: u32) -> Result<Vec<u8>, HostError> {
         Ok(self.map.get(&param_id).unwrap().to_vec())
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }
 

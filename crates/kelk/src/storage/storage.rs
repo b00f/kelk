@@ -37,7 +37,7 @@ macro_rules! impl_num {
 /// Storage object
 pub struct Storage {
     /// APIs the provided by th host
-    api: Box<dyn StorageAPI>,
+    pub(crate) api: Box<dyn StorageAPI>,
 }
 
 impl Storage {

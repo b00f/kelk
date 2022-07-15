@@ -1,8 +1,6 @@
 //! Address type for representing actor address
 use super::error::Error;
 use core::result::Result;
-use rand::rngs::SmallRng;
-use rand::{Rng, SeedableRng};
 
 /// Address type
 pub const ADDRESS_SIZE: usize = 21;
@@ -51,24 +49,22 @@ impl<'a, C> minicbor::Decode<'a, C> for Address {
     }
 }
 
-// TODO: Can we move it into mock?
-/// generates a random address for testing
-pub fn generate_test_address(seed: u64) -> Address {
-    let mut small_rng = SmallRng::seed_from_u64(seed);
-    let mut buf = [0u8; ADDRESS_SIZE];
-    small_rng.fill(&mut buf);
-    Address::from_bytes(&buf).unwrap()
-}
-
 #[cfg(test)]
 mod tests {
-    use super::{generate_test_address, Address};
+    use super::Address;
 
     #[test]
     fn test_decoding() {
-        let addr1 = generate_test_address(0);
-        let bytes = minicbor::to_vec(addr1.clone()).unwrap();
-        let addr2 = minicbor::decode::<Address>(&bytes).unwrap();
-        assert_eq!(addr1, addr2);
+        let addr = Address([
+            01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01,
+        ]);
+        let bytes = [
+            0x55, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01,
+            01,
+        ];
+        let encoded_addr = minicbor::to_vec(addr.clone()).unwrap();
+        let decoded_addr = minicbor::decode::<Address>(&bytes).unwrap();
+        assert_eq!(decoded_addr, addr);
+        assert_eq!(encoded_addr, bytes);
     }
 }

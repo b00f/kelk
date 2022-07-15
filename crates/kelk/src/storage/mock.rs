@@ -3,7 +3,7 @@
 use super::Storage;
 use alloc::boxed::Box;
 use alloc::vec::Vec;
-use core::{cell::RefCell, result::Result};
+use core::{any::Any, cell::RefCell, result::Result};
 use kelk_env::{HostError, StorageAPI};
 
 /// mocks the storage for testing purpose.
@@ -36,6 +36,10 @@ impl StorageAPI for MockStorage {
         }
         let c = &self.storage.borrow()[offset as usize..(offset + length) as usize];
         Ok(c.into())
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }
 
