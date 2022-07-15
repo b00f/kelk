@@ -24,20 +24,20 @@ impl MockedContext {
     }
 
     /// returns a reference to the mocked storage
-    pub fn mocked_storage(&self) -> &MockStorage {
+    pub fn mocked_storage(&mut self) -> &mut MockStorage {
         self.storage
             .api
             .as_any()
-            .downcast_ref::<MockStorage>()
+            .downcast_mut::<MockStorage>()
             .expect("Wasn't a trusty printer!")
     }
 
     /// returns a reference to the mocked blockchain
-    pub fn mocked_blockchain(&self) -> &MockBlockchain {
+    pub fn mocked_blockchain(&mut self) -> &mut MockBlockchain {
         self.blockchain
             .api
             .as_any()
-            .downcast_ref::<MockBlockchain>()
+            .downcast_mut::<MockBlockchain>()
             .expect("Wasn't a trusty printer!")
     }
 }

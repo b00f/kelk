@@ -45,7 +45,7 @@ impl BlockchainAPI for MockBlockchain {
         Ok(self.map.get(&param_id).unwrap().to_vec())
     }
 
-    fn as_any(&self) -> &dyn Any {
+    fn as_any(&mut self) -> &mut dyn Any {
         self
     }
 }
