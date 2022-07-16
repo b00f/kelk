@@ -88,12 +88,10 @@ impl Storage {
     /// if the length string is greater than `max_len` it wil be truncated to the `max_len`.
     #[inline]
     pub fn write_string(&self, offset: u32, value: &str, max_len: u32) -> Result<(), Error> {
-        let mut data = value.as_bytes();
+        let mut data = value.as_bytes().to_vec();
+        data.resize(max_len as usize, 0);
 
-        if data.len() > max_len as usize {
-            data = &data[0..max_len as usize];
-        }
-        self.write(offset, data)
+        self.write(offset, &data)
     }
 
     /// reads struct `T` from the storage file at the given `offset`.
@@ -126,6 +124,8 @@ impl Storage {
 
 #[cfg(test)]
 pub mod tests {
+    use alloc::string::ToString;
+
     use crate::storage::mock::mock_storage;
 
     #[test]
@@ -185,5 +185,14 @@ pub mod tests {
         storage.write_struct::<Test>(13, &foo_1).unwrap();
         let foo_2 = storage.read_struct::<Test>(13).unwrap();
         assert_eq!(foo_1, foo_2);
+    }
+
+    #[test]
+    fn test_sting() {
+        let storage = mock_storage(64);
+        storage.write_string(0, "foooo", 16).unwrap();
+        storage.write_string(0, "foo", 16).unwrap();
+        let expected = storage.read_string(0, 16).unwrap();
+        assert_eq!(expected, "foo".to_string())
     }
 }

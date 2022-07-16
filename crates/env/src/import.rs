@@ -85,7 +85,7 @@ impl StorageAPI for Kelk {
         Ok(vec.to_vec())
     }
 
-    fn as_any(&self) -> &dyn Any {
+    fn as_any(&mut self) -> &mut dyn Any {
         self
     }
 }
@@ -103,7 +103,7 @@ impl BlockchainAPI for Kelk {
         Ok(slice.to_vec())
     }
 
-    fn as_any(&self) -> &dyn Any {
+    fn as_any(&mut self) -> &mut dyn Any {
         self
     }
 }

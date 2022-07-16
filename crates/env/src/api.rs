@@ -18,7 +18,7 @@ pub trait StorageAPI {
 
     /// It is useful for downcasting the trait to the underling struct.
     /// For example we can downcast the trait to the mocked object.
-    fn as_any(&self) -> &dyn Any;
+    fn as_any(&mut self) -> &mut dyn Any;
 }
 
 /// the blockchain APIs that should be provided by the host.
@@ -30,5 +30,5 @@ pub trait BlockchainAPI {
 
     /// It is useful for downcasting the trait to the underling struct.
     /// For example we can downcast the trait to the mocked object.
-    fn as_any(&self) -> &dyn Any;
+    fn as_any(&mut self) -> &mut dyn Any;
 }
