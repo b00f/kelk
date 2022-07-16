@@ -1,0 +1,6 @@
+[target.wasm32-unknown-unknown]
+rustflags = [
+    "--remap-path-prefix=/home/mostafa/Projects/zarb/kelk/examples/hello_world/src=src",
+    "--remap-path-prefix=/home/mostafa/.cargo=cargo",
+    "--remap-path-prefix=/home/mostafa/.rustup=rustup"
+]
