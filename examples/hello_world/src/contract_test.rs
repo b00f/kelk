@@ -1,6 +1,6 @@
 use super::*;
-use kelk::mock::mock_context;
 use kelk::alloc::string::ToString;
+use kelk::mock::mock_context;
 
 #[test]
 fn test_instantiate() {

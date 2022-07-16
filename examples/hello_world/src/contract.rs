@@ -1,11 +1,11 @@
 use crate::error::Error;
+use kelk::alloc::string::String;
 use kelk::context::Context;
 use kelk::kelk_derive;
-use kelk::alloc::string::String;
 
 #[kelk_derive(instantiate)]
 pub fn instantiate(ctx: Context, _: ()) -> Result<(), Error> {
-    Ok(ctx.storage.write_string(0,"hello world!",  16)?)
+    Ok(ctx.storage.write_string(0, "hello world!", 16)?)
 }
 
 #[kelk_derive(process)]

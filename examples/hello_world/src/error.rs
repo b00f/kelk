@@ -3,7 +3,7 @@ use minicbor::Encode;
 #[derive(Clone, Debug, Encode)]
 pub enum Error {
     #[n(0)]
-    StorageError
+    StorageError,
 }
 
 // TODO: error message
