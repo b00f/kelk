@@ -1,0 +1,38 @@
+use super::*;
+use kelk::mock::{mock_context, MockContext};
+
+fn setup(ctx: &mut MockContext) -> (ERC20, Address) {
+    let owner = ctx.mocked_blockchain().generate_new_address();
+    ERC20::instantiate(ctx.as_ref(), &owner, "test-erc20", "$$$", &2000).unwrap();
+    let erc20 = ERC20::lazy_load(ctx.as_ref()).unwrap();
+
+    (erc20, owner)
+}
+
+#[test]
+fn test_instantiate() {
+    let mut ctx = mock_context(1024 * 1024);
+    let (erc20, owner) = setup(&mut ctx);
+    assert_eq!(erc20.name().unwrap(), "test-erc20".to_string());
+    assert_eq!(erc20.symbol().unwrap(), "$$$".to_string());
+    assert_eq!(erc20.balance(owner).unwrap(), 2000);
+    assert_eq!(erc20.total_supply().unwrap(), 2000);
+}
+
+#[test]
+fn test_transfer() {
+    let mut ctx = mock_context(1024 * 1024);
+    let addr_1 = ctx.mocked_blockchain().generate_new_address();
+    let addr_2 = ctx.mocked_blockchain().generate_new_address();
+    let (mut erc20, owner) = setup(&mut ctx);
+    assert!(erc20.transfer(addr_1.clone(), 10).is_ok());
+    assert!(erc20
+        .transfer_from(addr_1.clone(), addr_2.clone(), 20)
+        .is_err());
+    assert!(erc20
+        .transfer_from(addr_1.clone(), addr_2.clone(), 5)
+        .is_ok());
+    assert_eq!(erc20.balance(addr_1).unwrap(), 5);
+    assert_eq!(erc20.balance(addr_2).unwrap(), 5);
+    assert_eq!(erc20.balance(owner).unwrap(), 1990);
+}

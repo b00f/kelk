@@ -9,21 +9,28 @@ use syn::parse_macro_input;
 /// It can be added to the contract's instantiate, process and query functions
 /// like this:
 /// ```
-/// use kelk_derive::kelk_derive;
+/// use kelk::kelk_derive;
+/// use kelk::context::Context;
+///
+/// type InstantiateMsg = ();
+/// type ProcessMsg = ();
+/// type QueryMsg = ();
+///
+/// enum Error {};
 ///
 /// #[kelk_derive(instantiate)]
 /// pub fn instantiate(ctx: Context, msg: InstantiateMsg) -> Result<(), Error> {
-///    todo!()
+///    todo!();
 /// }
 ///
 /// #[kelk_derive(process)]
 /// pub fn process(ctx: Context, msg: ProcessMsg) -> Result<(), Error> {
-///   todo!()
-/// #}
+///   todo!();
+/// }
 ///
 /// #[kelk_derive(query)]
 /// pub fn query(ctx: Context, msg: QueryMsg) -> Result<(), Error> {
-///   todo!()
+///   todo!();
 /// }
 /// ```
 ///

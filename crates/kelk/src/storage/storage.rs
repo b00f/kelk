@@ -27,7 +27,7 @@ macro_rules! impl_num {
                 concat!("converts ", stringify!($ty)," to ", stringify!($size), " byte(s) and writes it into storage file at the given `offset`."
                 ),
             #[inline]
-            pub fn $write_fn(&self, offset: u32, value: $ty) -> Result<(),Error> {
+            pub fn $write_fn(&self, offset: u32, value: &$ty) -> Result<(),Error> {
                 self.write(offset, &value.to_be_bytes())
             }
         }
@@ -50,11 +50,13 @@ impl Storage {
     impl_num!(u16, 2, read_u16, write_u16);
     impl_num!(u32, 4, read_u32, write_u32);
     impl_num!(u64, 8, read_u64, write_u64);
+    impl_num!(u128, 16, read_u128, write_u128);
 
     impl_num!(i8, 1, read_i8, write_i8);
     impl_num!(i16, 2, read_i16, write_i16);
     impl_num!(i32, 4, read_i32, write_i32);
     impl_num!(i64, 8, read_i64, write_i64);
+    impl_num!(i128, 16, read_i128, write_i128);
 
     /// reads 1 byte from storage file at the given `offset` and converts it to bool.
     #[inline]
@@ -67,10 +69,10 @@ impl Storage {
 
     /// converts bool to 1 byte and writes it into storage file at the given `offset`.
     #[inline]
-    pub fn write_bool(&self, offset: u32, value: bool) -> Result<(), Error> {
+    pub fn write_bool(&self, offset: u32, value: &bool) -> Result<(), Error> {
         match value {
-            true => self.write_i8(offset, 1),
-            false => self.write_i8(offset, 0),
+            true => self.write_i8(offset, &1),
+            false => self.write_i8(offset, &0),
         }
     }
 
@@ -130,39 +132,43 @@ pub mod tests {
 
     #[test]
     fn test_negative_integers() {
-        let mock = mock_storage(15);
+        let mock = mock_storage(31);
 
-        mock.write_i8(0, -1).unwrap();
-        mock.write_i16(1, -2).unwrap();
-        mock.write_i32(3, -3).unwrap();
-        mock.write_i64(7, -4).unwrap();
+        mock.write_i8(0, &-1).unwrap();
+        mock.write_i16(1, &-2).unwrap();
+        mock.write_i32(3, &-3).unwrap();
+        mock.write_i64(7, &-4).unwrap();
+        mock.write_i128(15, &-5).unwrap();
 
         assert_eq!(mock.read_i8(0).unwrap(), -1);
         assert_eq!(mock.read_i16(1).unwrap(), -2);
         assert_eq!(mock.read_i32(3).unwrap(), -3);
         assert_eq!(mock.read_i64(7).unwrap(), -4);
+        assert_eq!(mock.read_i128(15).unwrap(), -5);
     }
 
     #[test]
     fn test_unsigned_integers() {
-        let mock = mock_storage(15);
+        let mock = mock_storage(31);
 
-        mock.write_u8(0, 1).unwrap();
-        mock.write_u16(1, 2).unwrap();
-        mock.write_u32(3, 3).unwrap();
-        mock.write_u64(7, 4).unwrap();
+        mock.write_u8(0, &1).unwrap();
+        mock.write_u16(1, &2).unwrap();
+        mock.write_u32(3, &3).unwrap();
+        mock.write_u64(7, &4).unwrap();
+        mock.write_u128(15, &4).unwrap();
 
         assert_eq!(mock.read_u8(0).unwrap(), 1);
         assert_eq!(mock.read_u16(1).unwrap(), 2);
         assert_eq!(mock.read_u32(3).unwrap(), 3);
         assert_eq!(mock.read_u64(7).unwrap(), 4);
+        assert_eq!(mock.read_u128(15).unwrap(), 4);
     }
 
     #[test]
     fn test_bool() {
         let mock = mock_storage(1);
 
-        mock.write_bool(0, true).unwrap();
+        mock.write_bool(0, &true).unwrap();
         assert!(mock.read_bool(0).unwrap());
     }
 
