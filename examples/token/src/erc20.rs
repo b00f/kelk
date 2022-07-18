@@ -48,7 +48,7 @@ impl<'a> ERC20<'a> {
         let allowances = StorageBST::create(ctx.storage, 12800, 1000).unwrap();
 
         Ok(Self {
-            ctx: ctx,
+            ctx,
             _balances: balances,
             _allowances: allowances,
         })
