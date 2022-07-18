@@ -1,10 +1,9 @@
 use super::*;
-use kelk::context::Context;
 use kelk::mock::{mock_context, MockContext};
 
 fn setup(ctx: &mut MockContext) -> Address {
     let owner = ctx.mocked_blockchain().generate_new_address();
-    let msg = InstansiteMsg {
+    let msg = InstantiateMsg {
         owner: owner.clone(),
         name: "test-erc20".to_string(),
         symbol: "@".to_string(),
@@ -35,4 +34,5 @@ fn test_transfer() {
     assert!(transfer_from(ctx.as_ref(), addr_1.clone(), addr_2.clone(), 5).is_ok());
     assert_eq!(balance(ctx.as_ref(), addr_1).unwrap(), 5);
     assert_eq!(balance(ctx.as_ref(), addr_2).unwrap(), 5);
+    assert_eq!(balance(ctx.as_ref(), owner).unwrap(), 1990);
 }

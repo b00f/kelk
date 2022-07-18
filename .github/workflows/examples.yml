@@ -12,7 +12,7 @@ jobs:
   testing:
     strategy:
       matrix:
-        examples: [calculator, hello_world]
+        examples: [hello_world, token]
 
     runs-on: ubuntu-latest
     steps:

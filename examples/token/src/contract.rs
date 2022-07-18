@@ -1,9 +1,9 @@
 use crate::error::Error;
-use crate::message::{InstansiteMsg, ProcMsg, QueryMsg, QueryRsp};
+use crate::message::{InstantiateMsg, ProcMsg, QueryMsg, QueryRsp};
 use kelk::blockchain::address::Address;
 use kelk::context::Context;
 use kelk::kelk_derive;
-use kelk::storage::collections::bst::StorageBST;
+use kelk::storage::bst::StorageBST;
 
 fn transfer(ctx: Context, to: Address, amount: i64) -> Result<(), Error> {
     let from: Address = ctx.storage.read_struct(0).unwrap();
@@ -22,26 +22,16 @@ fn total_supply(ctx: Context) -> Result<i64, Error> {
     Ok(ctx.storage.read_i64(90).unwrap())
 }
 
-fn balance(ctx: Context, address: Address) -> Result<i64, Error> {
+fn balance(ctx: Context, addr: Address) -> Result<i64, Error> {
     let bst: StorageBST<Address, i64> = StorageBST::lazy_load(ctx.storage, 128).unwrap();
-    let balance = match bst.find(&address).unwrap() {
-        Some(balance) => balance,
-        None => 0,
-    };
+    let balance = bst.find(&addr).unwrap().unwrap_or(0);
     Ok(balance)
 }
 
 fn transfer_from(ctx: Context, from: Address, to: Address, amount: i64) -> Result<(), Error> {
     let mut bst: StorageBST<Address, i64> = StorageBST::lazy_load(ctx.storage, 128).unwrap(); // FIXME: no unwrap
-    let tx_balance = match bst.find(&from).unwrap() {
-        Some(balance) => balance,
-        None => 0,
-    };
-
-    let rx_balance = match bst.find(&to).unwrap() {
-        Some(balance) => balance,
-        None => 0,
-    };
+    let tx_balance = bst.find(&from).unwrap().unwrap_or(0);
+    let rx_balance = bst.find(&to).unwrap().unwrap_or(0);
 
     if tx_balance < amount {
         return Err(Error::InsufficientAmount);
@@ -50,6 +40,26 @@ fn transfer_from(ctx: Context, from: Address, to: Address, amount: i64) -> Resul
     bst.insert(from, tx_balance - amount).unwrap();
     bst.insert(to, rx_balance + amount).unwrap();
 
+    Ok(())
+}
+/*
+instantiate creates a new contract and deployment code.
+*/
+#[kelk_derive(instantiate)]
+pub fn instantiate(ctx: Context, msg: InstantiateMsg) -> Result<(), Error> {
+    if msg.name.len() > 64 {
+        return Err(Error::InvalidMsg);
+    }
+    if msg.symbol.len() > 4 {
+        return Err(Error::InvalidMsg);
+    }
+    ctx.storage.write_struct(0, &msg.owner).unwrap();
+    ctx.storage.write_string(22, &msg.name, 64).unwrap();
+    ctx.storage.write_string(86, &msg.symbol, 4).unwrap();
+    ctx.storage.write_i64(90, msg.total_supply).unwrap();
+    let mut bst: StorageBST<Address, i64> = StorageBST::create(ctx.storage, 128, 1000).unwrap();
+    // FIXME unwrap()
+    bst.insert(msg.owner, msg.total_supply).unwrap();
     Ok(())
 }
 
@@ -67,26 +77,6 @@ pub fn process(ctx: Context, msg: ProcMsg) -> Result<(), Error> {
     }
 }
 
-/*
-instantiate creates a new contract and deployment code.
-*/
-#[kelk_derive(instantiate)]
-pub fn instantiate(ctx: Context, msg: InstansiteMsg) -> Result<(), Error> {
-    if msg.name.len() > 64 {
-        return Err(Error::InvalidMsg);
-    }
-    if msg.symbol.len() > 4 {
-        return Err(Error::InvalidMsg);
-    }
-    ctx.storage.write_struct(0, &msg.owner).unwrap();
-    ctx.storage.write_string(22, &msg.name, 64).unwrap();
-    ctx.storage.write_string(86, &msg.symbol, 4).unwrap();
-    ctx.storage.write_i64(90, msg.total_supply).unwrap();
-    let mut bst: StorageBST<Address, i64> = StorageBST::create(ctx.storage, 128, 1000).unwrap();
-    // FIXME unwrap()
-    bst.insert(msg.owner, msg.total_supply).unwrap();
-    Ok(())
-}
 /*
 query executes the contract associated with the addr with the given input
 as parameters while disallowing any modifications to the state during the call.
@@ -109,4 +99,4 @@ pub fn query(ctx: Context, msg: QueryMsg) -> Result<QueryRsp, Error> {
 
 #[cfg(test)]
 #[path = "./contract_test.rs"]
-mod contract_test;
+mod tests;

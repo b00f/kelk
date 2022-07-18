@@ -2,12 +2,13 @@
 name = "hello_world"
 version = "0.1.0"
 edition = "2021"
+publish = false
 authors = ["Zarb development team <admin@zarb.network>"]
 
 [dependencies]
 kelk = { path = "../../crates/kelk" }
+kelk-allocator = { path = "../../crates/allocator" }
 minicbor = { version = "0.18.0", features = ["half", "derive"] }
-wee_alloc = { version = "0.4", default-features = false }
 
 [lib]
 name = "hello_world"

@@ -21,7 +21,7 @@ pub enum ProcMsg {
     },
 }
 #[derive(Clone, Debug, Encode, Decode)]
-pub struct InstansiteMsg {
+pub struct InstantiateMsg {
     #[n(0)]
     pub owner: Address,
     #[n(1)]
@@ -69,5 +69,4 @@ pub enum QueryRsp {
         #[n(2)]
         res: i64,
     },
-    
 }

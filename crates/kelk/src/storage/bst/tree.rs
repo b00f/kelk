@@ -141,7 +141,7 @@ where
                 }
                 offset = node.left;
             } else {
-                if node.left.eq(&0) {
+                if node.right.eq(&0) {
                     return Ok(None);
                 }
                 offset = node.right;
@@ -200,6 +200,7 @@ mod tests {
 
         assert_eq!(Some(30), bst.find(&3).unwrap());
         assert_eq!(Some(100), bst.find(&0).unwrap());
+        assert!(!bst.contains_key(&-1).unwrap());
         assert!(bst.contains_key(&2).unwrap());
         assert!(!bst.contains_key(&8).unwrap());
     }

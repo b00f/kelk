@@ -19,10 +19,13 @@
     unused_parens,
     while_true,
     trivial_casts,
-    trivial_numeric_casts,
-    unused_extern_crates
+    trivial_numeric_casts
 )]
 #![allow(clippy::module_inception)]
+
+extern crate kelk_allocator;
+
+pub extern crate alloc;
 
 pub mod blockchain;
 pub mod context;
@@ -33,8 +36,6 @@ pub use kelk_derive::kelk_derive;
 
 #[cfg(target_arch = "wasm32")]
 pub use kelk_env::import::*;
-
-pub extern crate alloc;
 
 #[macro_use]
 extern crate doc_comment;

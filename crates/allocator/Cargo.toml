@@ -1,0 +1,13 @@
+[package]
+name = "kelk-allocator"
+version = "0.2.0"
+edition = "2021"
+authors = ["Zarb development team <admin@zarb.network>"]
+license = "MIT"
+homepage = "https://zarb.network/"
+repository = "https://github.com/zarbchan/kelk"
+description = "Kelk-allocator providing memory allocator support for smart contracts in Zarb blockchain."
+
+
+[dependencies]
+wee_alloc = { version = "0.4", default-features = false }

@@ -20,4 +20,4 @@ pub fn query(ctx: Context, _: ()) -> Result<String, Error> {
 
 #[cfg(test)]
 #[path = "./contract_test.rs"]
-mod contract_test;
+mod tests;
