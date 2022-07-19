@@ -5,7 +5,7 @@ pub(super) struct Header {
     pub boom: u32,
     pub key_len: u16,
     pub value_len: u16,
-    pub size: u32,
+    pub count: u32,
     pub capacity: u32,
 }
 
@@ -15,7 +15,7 @@ impl Header {
             boom: 0xb3000000,
             key_len: size_of::<K>() as u16,
             value_len: size_of::<V>() as u16,
-            size: 0,
+            count: 0,
             capacity,
         }
     }

@@ -1,5 +1,5 @@
-//! Storage Binary Search Tree, is a binary search tree or BST that instead of using Random Access Memory,
-//! Read and writes from contract's storage. Therefore it's permanently store inside contract's storage.
+//! Storage Binary Search Tree, is a binary search tree or BST that instead of using Random Access Memory (RAM),
+//! it uses storage file. Therefore it's permanently store inside contract's storage.
 
 use super::header::Header;
 use super::node::Node;
@@ -66,16 +66,16 @@ where
     /// If the map did not have this key present, None is returned.
     /// If the map did have this key present, the value is updated, and the old value is returned.
     pub fn insert(&mut self, key: K, value: V) -> Result<Option<V>, Error> {
-        if self.header.size == 0 {
+        if self.header.count == 0 {
             // create a root node
             let root = Node::new(key, value);
-            self.header.size = 1;
+            self.header.count = 1;
 
             let root_offset = self.offset + size_of::<Header>() as u32;
             self.storage.write_struct(self.offset, &self.header)?;
             self.storage.write_struct(root_offset, &root)?;
             Ok(None)
-        } else if self.header.size >= self.header.capacity {
+        } else if self.header.count >= self.header.capacity {
             Err(Error::OutOfCapacity)
         } else {
             let mut offset = self.offset + size_of::<Header>() as u32;
@@ -89,10 +89,10 @@ where
                     return Ok(Some(old_value));
                 } else if node.key.le(&key) {
                     if node.left.eq(&0) {
-                        self.header.size += 1;
+                        self.header.count += 1;
                         let new_offset = self.offset
                             + size_of::<Header>() as u32
-                            + (self.header.size * size_of::<Node<K, V>>() as u32);
+                            + (self.header.count * size_of::<Node<K, V>>() as u32);
 
                         self.storage.write_struct(self.offset, &self.header)?;
                         node.left = new_offset;
@@ -104,10 +104,10 @@ where
                     offset = node.left;
                 } else {
                     if node.right.eq(&0) {
-                        self.header.size += 1;
+                        self.header.count += 1;
                         let new_offset = self.offset
                             + size_of::<Header>() as u32
-                            + (self.header.size * size_of::<Node<K, V>>() as u32);
+                            + (self.header.count * size_of::<Node<K, V>>() as u32);
 
                         self.storage.write_struct(self.offset, &self.header)?;
                         node.right = new_offset;
@@ -125,7 +125,7 @@ where
 
     /// Returns the value corresponding to the key. If the key doesn't exists, it returns None.
     pub fn find(&self, key: &K) -> Result<Option<V>, Error> {
-        if self.header.size == 0 {
+        if self.header.count == 0 {
             return Ok(None);
         }
 
@@ -180,7 +180,7 @@ mod tests {
         assert_eq!(header.boom, 0xb3000000);
         assert_eq!(header.key_len, 4);
         assert_eq!(header.value_len, 8);
-        assert_eq!(header.size, 0);
+        assert_eq!(header.count, 0);
         assert_eq!(header.capacity, 16);
     }
 
@@ -216,7 +216,7 @@ mod tests {
         assert_eq!(header.boom, 0xb3000000);
         assert_eq!(header.key_len, 4);
         assert_eq!(header.value_len, 4);
-        assert_eq!(header.size, 1);
+        assert_eq!(header.count, 1);
         assert_eq!(header.capacity, 128);
         assert_eq!(Some(1), bst.find(&1).unwrap());
     }

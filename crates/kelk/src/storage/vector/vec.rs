@@ -1,5 +1,5 @@
-//! Storage Vector, is a Vector or Array that instead of using Random Access Memory,
-//! Read and writes from contract's storage. Therefore it's permanently store inside contract's storage.
+//! Storage Vector, is a Vector or Array that instead of using Random Access Memory (RAM),
+//! it uses storage file. Therefore it's permanently store inside contract's storage.
 
 use super::header::Header;
 use crate::storage::error::Error;
@@ -57,7 +57,7 @@ where
 
     /// Returns the number of elements in the vector, also referred to as its ‘length’.
     pub fn len(&self) -> u32 {
-        self.header.size
+        self.header.count
     }
 
     /// Returns true if the vector contains no elements.
@@ -67,15 +67,15 @@ where
 
     /// Appends an element to the back of a vector.
     pub fn push(&mut self, value: V) -> Result<(), Error> {
-        if self.header.size >= self.header.capacity {
+        if self.header.count >= self.header.capacity {
             return Err(Error::OutOfCapacity);
         }
 
         let offset = self.offset
             + size_of::<Header>() as u32
-            + (self.header.size * self.header.value_len as u32);
+            + (self.header.count * self.header.value_len as u32);
 
-        self.header.size += 1;
+        self.header.count += 1;
         self.storage.write_struct(self.offset, &self.header)?;
         self.storage.write_struct(offset, &value)?;
         Ok(())
@@ -83,7 +83,7 @@ where
 
     /// Returns an element at the given index or None if out of bounds..
     pub fn get(&self, index: u32) -> Result<Option<V>, Error> {
-        if index >= self.header.size {
+        if index >= self.header.count {
             return Ok(None);
         }
 
@@ -114,7 +114,7 @@ mod tests {
         assert_eq!(header.boom, 0xb3000000);
         assert_eq!(header.reserved, 0);
         assert_eq!(header.value_len, 4);
-        assert_eq!(header.size, 0);
+        assert_eq!(header.count, 0);
         assert_eq!(header.capacity, 16);
     }
 
@@ -147,7 +147,7 @@ mod tests {
         assert_eq!(header.boom, 0xb3000000);
         assert_eq!(header.reserved, 0);
         assert_eq!(header.value_len, 4);
-        assert_eq!(header.size, 1);
+        assert_eq!(header.count, 1);
         assert_eq!(header.capacity, 128);
         assert_eq!(Some(1), vec.get(0).unwrap());
     }

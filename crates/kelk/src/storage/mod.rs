@@ -2,6 +2,7 @@
 
 pub mod bst;
 pub mod error;
+pub mod linked_list;
 pub mod mock;
 pub mod storage;
 pub mod vector;
