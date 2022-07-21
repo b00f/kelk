@@ -6,7 +6,6 @@ use super::Blockchain;
 use alloc::vec::Vec;
 use alloc::{boxed::Box, collections::BTreeMap};
 use core::any::Any;
-use core::ops::Add;
 use core::result::Result;
 use kelk_env::{BlockchainAPI, HostError};
 use rand::rngs::SmallRng;

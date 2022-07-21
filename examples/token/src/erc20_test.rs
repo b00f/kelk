@@ -1,6 +1,5 @@
 use super::*;
 use kelk::{
-    context,
     mock::{mock_context, MockContext},
 };
 

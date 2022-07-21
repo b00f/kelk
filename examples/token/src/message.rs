@@ -19,6 +19,13 @@ pub enum ProcMsg {
         #[n(1)]
         amount: i64,
     },
+    #[n(2)]
+    Approve {
+        #[n(0)]
+        to: Address,
+        #[n(1)]
+        amount: i64,
+    },
 }
 #[derive(Clone, Debug, Encode, Decode)]
 pub struct InstantiateMsg {

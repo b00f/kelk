@@ -76,10 +76,11 @@ impl<'a> ERC20<'a> {
             .unwrap()
             .unwrap_or(0)
     }
-    pub fn approve(&mut self, spender: Address, amount: i64) -> bool {
+
+    pub fn approve(&mut self, spender: Address, amount: i64) -> Result<(), Error> {
         let owner: Address = self.ctx.blockchain.get_transaction_signer().unwrap();
         self._approved(owner, spender, amount);
-        return true;
+        Ok(())
     }
 
     pub fn _approved(&mut self, owner: Address, sepender: Address, amount: i64) -> bool {

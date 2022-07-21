@@ -24,6 +24,7 @@ pub fn process(ctx: Context, msg: ProcMsg) -> Result<(), Error> {
     match msg {
         ProcMsg::Transfer { to, amount } => token.transfer(to, amount),
         ProcMsg::TransferFrom { from, to, amount } => token.transfer_from(from, to, amount),
+        ProcMsg::Approve { to, amount } => token.approve(to, amount),
     }
 }
 
