@@ -15,7 +15,7 @@ where
     K: Sized + Ord,
     V: Sized,
 {
-    storage: &'a Storage,
+    storage: &'a Storage<'a>,
     offset: u32,
     header: Header,
     _phantom: PhantomData<(K, V)>,

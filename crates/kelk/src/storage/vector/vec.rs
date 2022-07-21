@@ -13,7 +13,7 @@ pub struct StorageVec<'a, V>
 where
     V: Sized,
 {
-    storage: &'a Storage,
+    storage: &'a Storage<'a>,
     offset: u32,
     header: Header,
     _phantom: PhantomData<V>,

@@ -12,14 +12,18 @@ const PARAM_ID_TRANSACTION_SIGNER: u32 = 0x0010;
 
 /// Blockchain object
 pub struct Blockchain {
-    /// APIs the provided by th host
-    pub(crate) api: Box<dyn BlockchainAPI>,
+    /// Blockchain APIs that are provided by the host
+    api: Box<dyn BlockchainAPI>,
 }
 
 impl Blockchain {
     /// creates a new instance of Blockchain
     pub fn new(api: Box<dyn BlockchainAPI>) -> Self {
         Self { api }
+    }
+
+    pub(crate) fn api_mut(&mut self) -> &mut Box<dyn BlockchainAPI> {
+        &mut self.api
     }
 
     /// returns the last block hash
