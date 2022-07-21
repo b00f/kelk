@@ -9,7 +9,7 @@ instantiate creates a new contract and deployment code.
 */
 #[kelk_derive(instantiate)]
 pub fn instantiate(ctx: Context, msg: InstantiateMsg) -> Result<(), Error> {
-    ERC20::instantiate(ctx, &msg.owner, &msg.name, &msg.symbol, &msg.total_supply)
+    ERC20::instantiate(ctx, &msg.name, &msg.symbol, &msg.total_supply)
 }
 
 /*
@@ -43,7 +43,10 @@ pub fn query(ctx: Context, msg: QueryMsg) -> Result<QueryRsp, Error> {
             res: token.total_supply()?,
         },
         QueryMsg::Balance { addr } => QueryRsp::Balance {
-            res: token.balance(addr)?,
+            res: token.balance_of(addr)?,
+        },
+        QueryMsg::Allowance { owner, spender } => QueryRsp::Allowance {
+            res: token.allowance(owner, spender),
         },
     };
 

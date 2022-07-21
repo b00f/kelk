@@ -6,9 +6,9 @@ use alloc::boxed::Box;
 use alloc::vec::Vec;
 use kelk_env::BlockchainAPI;
 
-const PARAM_ID_LAST_BLOCK_HASH: u32 = 0x0001;
-const PARAM_ID_LAST_BLOCK_TIME: u32 = 0x0002;
-const PARAM_ID_TRANSACTION_SIGNER: u32 = 0x0010;
+pub(crate) const PARAM_ID_LAST_BLOCK_HASH: u32 = 0x0001;
+pub(crate) const PARAM_ID_LAST_BLOCK_TIME: u32 = 0x0002;
+pub(crate) const PARAM_ID_TRANSACTION_SIGNER: u32 = 0x0010;
 
 /// Blockchain object
 pub struct Blockchain {
@@ -31,7 +31,7 @@ impl Blockchain {
     pub fn get_last_block_time(&self) -> Result<Vec<u8>, Error> {
         Ok(self.api.get_param(PARAM_ID_LAST_BLOCK_TIME)?)
     }
-
+    //todo!() rename method name to msg_sender
     /// returns the transaction signer address
     pub fn get_transaction_signer(&self) -> Result<Address, Error> {
         let data = self.api.get_param(PARAM_ID_TRANSACTION_SIGNER)?;

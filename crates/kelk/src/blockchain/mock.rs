@@ -1,10 +1,12 @@
 //! Mocking the blockchain for testing purpose
 
 use super::address::{Address, ADDRESS_SIZE};
+use super::blockchain::PARAM_ID_TRANSACTION_SIGNER;
 use super::Blockchain;
 use alloc::vec::Vec;
 use alloc::{boxed::Box, collections::BTreeMap};
 use core::any::Any;
+use core::ops::Add;
 use core::result::Result;
 use kelk_env::{BlockchainAPI, HostError};
 use rand::rngs::SmallRng;
@@ -31,6 +33,11 @@ impl MockBlockchain {
         let mut buf = [0u8; ADDRESS_SIZE];
         small_rng.fill(&mut buf);
         Address::from_bytes(&buf).unwrap()
+    }
+    /// sets message sender for testing
+    pub fn set_msg_sender(&mut self, addr: Address) {
+        self.map
+            .insert(PARAM_ID_TRANSACTION_SIGNER, addr.as_bytes().to_vec());
     }
 }
 

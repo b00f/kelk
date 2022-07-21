@@ -23,12 +23,10 @@ pub enum ProcMsg {
 #[derive(Clone, Debug, Encode, Decode)]
 pub struct InstantiateMsg {
     #[n(0)]
-    pub owner: Address,
-    #[n(1)]
     pub name: String,
-    #[n(2)]
+    #[n(1)]
     pub symbol: String,
-    #[n(3)]
+    #[n(2)]
     pub total_supply: i64,
 }
 
@@ -45,6 +43,13 @@ pub enum QueryMsg {
     },
     #[n(3)]
     TotalSupply,
+    #[n(4)]
+    Allowance {
+        #[n(0)]
+        owner: Address,
+        #[n(1)]
+        spender: Address,
+    },
 }
 
 #[derive(Clone, Debug, Encode, Decode)]
@@ -67,6 +72,11 @@ pub enum QueryRsp {
     #[n(3)]
     TotalSupply {
         #[n(2)]
+        res: i64,
+    },
+    #[n(4)]
+    Allowance {
+        #[n(0)]
         res: i64,
     },
 }
