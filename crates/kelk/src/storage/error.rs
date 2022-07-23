@@ -9,6 +9,9 @@ pub enum Error {
     /// Host error code
     HostError(i32),
 
+    /// stack overflow error
+    StackOverflow,
+
     /// Invalid offset
     InvalidOffset(u32),
 

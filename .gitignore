@@ -9,3 +9,5 @@
 Cargo.lock
 
 .todo
+
+.DS_Store

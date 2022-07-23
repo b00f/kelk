@@ -1,12 +1,16 @@
-#[repr(C)]
-pub(super) struct Node<K: Sized + Ord, V: Sized> {
-    pub left: u32,
-    pub right: u32,
+use crate::storage::codec::Codec;
+use crate::storage::Offset;
+use crate::Codec;
+
+#[derive(Codec)]
+pub(super) struct Node<K: Codec + Ord, V: Codec> {
+    pub left: Offset,
+    pub right: Offset,
     pub key: K,
     pub value: V,
 }
 
-impl<K: Sized + Ord, V: Sized> Node<K, V> {
+impl<K: Codec + Ord, V: Codec> Node<K, V> {
     pub fn new(key: K, value: V) -> Self {
         Self {
             key,

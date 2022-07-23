@@ -45,5 +45,5 @@ impl StorageAPI for MockStorage {
 
 /// mocks the storage for testing
 pub fn mock_storage(storage_size: usize) -> Storage {
-    Storage::new(Box::new(MockStorage::new(storage_size)))
+    Storage::create(Box::new(MockStorage::new(storage_size))).unwrap()
 }

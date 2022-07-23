@@ -1,22 +1,22 @@
-use core::mem::size_of;
+use crate::storage::codec::Codec;
+use crate::storage::Offset;
+use crate::Codec;
 
-#[repr(C)]
+#[derive(Codec)]
 pub(super) struct Header {
-    pub boom: u32,
     pub key_len: u16,
     pub value_len: u16,
-    pub size: u32,
-    pub capacity: u32,
+    pub count: u32,
+    pub root_offset: Offset,
 }
 
 impl Header {
-    pub fn new<K: Sized, V: Sized>(capacity: u32) -> Self {
+    pub fn new<K: Codec, V: Codec>() -> Self {
         Self {
-            boom: 0xb3000000,
-            key_len: size_of::<K>() as u16,
-            value_len: size_of::<V>() as u16,
-            size: 0,
-            capacity,
+            key_len: K::PACKED_LEN as u16,
+            value_len: K::PACKED_LEN as u16,
+            count: 0,
+            root_offset: 0,
         }
     }
 }

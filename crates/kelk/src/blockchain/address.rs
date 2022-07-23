@@ -4,7 +4,7 @@ use core::cmp::PartialOrd;
 use core::result::Result;
 
 /// Address type
-pub const ADDRESS_SIZE: usize = 20;
+pub const ADDRESS_SIZE: usize = 21;
 
 /// Address type in Zarb blockchain
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd)]
@@ -57,10 +57,10 @@ mod tests {
     #[test]
     fn test_decoding() {
         let addr = Address([
-            01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
         ]);
         let bytes = [
-            0x54, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01, 01,
+            0x55, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
         ];
         let encoded_addr = minicbor::to_vec(addr.clone()).unwrap();
         let decoded_addr = minicbor::decode::<Address>(&bytes).unwrap();
