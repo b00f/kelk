@@ -48,31 +48,40 @@ pub fn kelk_entry(
     let function = parse_macro_input!(cloned as syn::ItemFn);
     let name = function.sig.ident.to_string();
 
-    if name != "instantiate" && name != "process" && name != "query" {
-        return proc_macro::TokenStream::from(quote! {
-            compile_error!("entry function should be either \"instantiate\", \"process\", or \"query\""),
-        });
-    }
+    let storage_method = match name.as_ref() {
+        "instantiate" => "create",
+        "process" => "load",
+        "query" => "load",
+        _ => {
+            return proc_macro::TokenStream::from(quote! {
+                compile_error!("entry function should be either \"instantiate\", \"process\", or \"query\""),
+            })
+        }
+    };
 
-    let new_code = format!(
+    let gen_code = format!(
         r##"
         #[cfg(target_arch = "wasm32")]
         mod __wasm_export_{name} {{
             #[no_mangle]
             extern "C" fn {name}(msg_ptr: u64) -> u64 {{
                 let ctx = kelk::context::OwnedContext {{
-                    storage: kelk::storage::Storage::create(
-                        kelk::alloc::boxed::Box::new(kelk::Kelk::new())),
-                    blockchain: kelk::blockchain::Blockchain::create(
-                        kelk::alloc::boxed::Box::new(kelk::Kelk::new())),
+                    storage: kelk::storage::Storage::{method}(kelk::alloc::boxed::Box::new(kelk::Kelk::new()))
+                        .unwrap(),
+                    blockchain: kelk::blockchain::Blockchain::new(kelk::alloc::boxed::Box::new(
+                        kelk::Kelk::new(),
+                    )),
                 }};
+
                 kelk::do_{name}(&super::{name}, ctx.as_ref(), msg_ptr)
             }}
         }}
     "##,
         name = name,
+        method = storage_method,
     );
-    let entry = proc_macro::TokenStream::from_str(&new_code).unwrap();
+
+    let entry = proc_macro::TokenStream::from_str(&gen_code).unwrap();
     item.extend(entry);
     item
 }
