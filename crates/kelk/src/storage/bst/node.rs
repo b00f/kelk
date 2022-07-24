@@ -1,6 +1,8 @@
 use crate::storage::codec::Codec;
 use crate::storage::Offset;
 use crate::Codec;
+use alloc::vec::Vec;
+
 
 #[derive(Codec)]
 pub(super) struct Node<K: Codec + Ord, V: Codec> {

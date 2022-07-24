@@ -166,6 +166,7 @@ impl Storage {
 pub mod tests {
     use crate::storage::codec::Codec;
     use crate::storage::mock::mock_storage;
+    use alloc::vec::Vec;
     use kelk_derive::Codec;
 
     #[test]

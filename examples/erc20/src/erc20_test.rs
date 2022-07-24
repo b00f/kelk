@@ -6,8 +6,8 @@ use kelk::{
 fn setup(ctx: &mut MockContext) -> (ERC20, Address) {
     let owner = ctx.mocked_blockchain().generate_new_address();
     ctx.mocked_blockchain().set_msg_sender(owner.clone());
-    ERC20::instantiate(ctx.as_ref(), "test-erc20", "$$$", &2000).unwrap();
-    let erc20 = ERC20::lazy_load(ctx.as_ref()).unwrap();
+    ERC20::instantiate(ctx.as_ref(), "test-erc20", "$$$", 2000).unwrap();
+    let erc20 = ERC20::load(ctx.as_ref()).unwrap();
     (erc20, owner)
 }
 

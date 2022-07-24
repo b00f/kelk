@@ -1,9 +1,9 @@
 use proc_macro2::TokenStream;
-use quote::{quote, quote_spanned};
+use quote::{quote, quote_spanned, ToTokens};
 use std::str::FromStr;
 use syn::{
-    parse_macro_input, parse_quote, punctuated::Punctuated, spanned::Spanned, token::Comma, Data,
-    DeriveInput, Field, Fields, GenericParam, Generics, TypeParamBound,
+    parse_macro_input, parse_quote, spanned::Spanned, Data, DeriveInput, Fields, FieldsNamed,
+    FieldsUnnamed, GenericParam, Generics, Ident, Index, Type, TypeParamBound,
 };
 
 /// The attribute macro to inject the code at the beginning of entry functions
@@ -93,8 +93,8 @@ pub fn derive_codec(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
             const PACKED_LEN: usize = #packed_len_body;
 
             #[inline]
-            fn to_bytes(&self) -> alloc::vec::Vec<u8> {
-                let mut bytes = alloc::vec::Vec::with_capacity(<Self as Codec>::PACKED_LEN);
+            fn to_bytes(&self) -> Vec<u8> {
+                let mut bytes = Vec::with_capacity(<Self as Codec>::PACKED_LEN);
                 #to_bytes_body
                 bytes
             }
@@ -106,6 +106,7 @@ pub fn derive_codec(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
         }
     };
 
+    //panic!("{}" , expanded.to_string());
     // Hand the output tokens back to the compiler.
     proc_macro::TokenStream::from(expanded)
 }
@@ -168,8 +169,26 @@ fn codec_body(data: &Data) -> (TokenStream, TokenStream) {
     match *data {
         Data::Struct(ref data) => {
             match data.fields {
-                Fields::Named(ref fields) => codec_fields(&fields.named),
-                Fields::Unnamed(ref fields) => codec_fields(&fields.unnamed),
+                //  Normal struct: named fields
+                Fields::Named(FieldsNamed { ref named, .. }) => {
+                    //  Collect references to all the field names. A precondition of
+                    //  reaching this code path is that all fields HAVE names, so it
+                    //  is safe to have an unreachable trap in the None condition.
+                    let names: Vec<(&Type, &Ident)> = named
+                        .iter()
+                        .map(|f| (&f.ty, f.ident.as_ref().unwrap()))
+                        .collect();
+                    codegen_struct(&names)
+                }
+                //  Tuple struct: unnamed fields
+                Fields::Unnamed(FieldsUnnamed { ref unnamed, .. }) => {
+                    let mut nums: Vec<(&Type, Index)> = Vec::new();
+                    for (i, f) in unnamed.into_iter().enumerate() {
+                        nums.push((&f.ty, i.into()));
+                    }
+                    codegen_struct(&nums)
+                }
+
                 Fields::Unit => {
                     // Unit structs cannot own more than 0 bytes of heap memory.
                     (quote!(0), quote!(0))
@@ -180,23 +199,23 @@ fn codec_body(data: &Data) -> (TokenStream, TokenStream) {
     }
 }
 
-fn codec_fields(fields: &Punctuated<Field, Comma>) -> (TokenStream, TokenStream) {
+fn codegen_struct<T: ToTokens>(fields: &[(&Type, T)]) -> (TokenStream, TokenStream) {
     let mut beg_offset = quote! { 0 };
     let mut recurse_to_bytes = vec![];
     let mut recurse_from_bytes = vec![];
 
     for field in fields.iter() {
-        let name = &field.ident;
-        let ty = &field.ty;
+        let ty = field.0;
+        let name = &field.1;
 
-        recurse_to_bytes.push(quote_spanned! {field.span()=>
+        recurse_to_bytes.push(quote! {
             bytes.extend_from_slice(&Codec::to_bytes(&self.#name));
         });
 
         let struct_size = quote! { <#ty as Codec>::PACKED_LEN };
         let end_offset = quote! { #beg_offset + #struct_size };
         let bytes_slice = quote! { bytes[#beg_offset..#end_offset] };
-        recurse_from_bytes.push(quote_spanned! {field.span()=>
+        recurse_from_bytes.push(quote! {
             #name: Codec::from_bytes(& #bytes_slice),
         });
 

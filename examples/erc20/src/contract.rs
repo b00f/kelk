@@ -9,7 +9,8 @@ instantiate creates a new contract and deployment code.
 */
 #[kelk_derive(instantiate)]
 pub fn instantiate(ctx: Context, msg: InstantiateMsg) -> Result<(), Error> {
-    ERC20::instantiate(ctx, &msg.name, &msg.symbol, &msg.total_supply)
+    ERC20::instantiate(ctx, &msg.name, &msg.symbol, msg.total_supply)?;
+    Ok(())
 }
 
 /*
@@ -20,7 +21,7 @@ execution error or failed value transfer.
 */
 #[kelk_derive(process)]
 pub fn process(ctx: Context, msg: ProcMsg) -> Result<(), Error> {
-    let mut token = ERC20::lazy_load(ctx)?;
+    let mut token = ERC20::load(ctx)?;
     match msg {
         ProcMsg::Transfer { to, amount } => token.transfer(to, amount),
         ProcMsg::TransferFrom { from, to, amount } => token.transfer_from(from, to, amount),
@@ -34,7 +35,7 @@ as parameters while disallowing any modifications to the state during the call.
 */
 #[kelk_derive(query)]
 pub fn query(ctx: Context, msg: QueryMsg) -> Result<QueryRsp, Error> {
-    let token = ERC20::lazy_load(ctx)?;
+    let token = ERC20::load(ctx)?;
     let res = match msg {
         QueryMsg::Name => QueryRsp::Name { res: token.name()? },
         QueryMsg::Symbol => QueryRsp::Symbol {

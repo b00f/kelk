@@ -15,6 +15,7 @@ use crate::Codec;
 use core::iter::IntoIterator;
 use core::marker::PhantomData;
 use core::result::Result;
+use alloc::vec::Vec;
 
 /// The instance of `StorageLinkedList`
 pub struct StorageLinkedList<'a, T: Codec> {
