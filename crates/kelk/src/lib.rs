@@ -31,7 +31,7 @@ pub mod context;
 pub mod mock;
 pub mod storage;
 
-pub use kelk_derive::{kelk_derive, Codec};
+pub use kelk_derive::{kelk_entry, Codec};
 
 #[cfg(target_arch = "wasm32")]
 pub use kelk_env::import::*;

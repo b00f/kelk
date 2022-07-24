@@ -173,7 +173,7 @@ mod tests {
 
     #[test]
     fn test_bst() {
-        let storage = mock_storage(1024 * 1024);
+        let storage = mock_storage(1024);
         let mut bst_1 = StorageBST::<i32, i32>::create(&storage).unwrap();
 
         assert_eq!(None, bst_1.insert(1, 10).unwrap());

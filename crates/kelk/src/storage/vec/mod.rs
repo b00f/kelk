@@ -6,13 +6,12 @@
 
 mod header;
 
-use alloc::vec::Vec;
-
 use self::header::Header;
 use crate::storage::codec::Codec;
 use crate::storage::error::Error;
 use crate::storage::Offset;
 use crate::storage::Storage;
+use alloc::vec::Vec;
 use core::marker::PhantomData;
 use core::result::Result;
 
@@ -129,8 +128,11 @@ impl<'a, T: Codec> StorageVec<'a, T> {
 
     ///
     pub fn get_bytes(&self) -> Result<Vec<u8>, Error> {
-        let length = self.header.count * self.header.value_len as u32;
-        self.storage.read_bytes(self.header.data_offset, length)
+        let length = self.header.count as usize * self.header.value_len as usize;
+        let mut bytes = alloc::vec![0; length];
+        self.storage
+            .read_bytes(self.header.data_offset, &mut bytes)?;
+        Ok(bytes)
     }
 
     fn item_offset(&self, index: u32) -> Result<Offset, Error> {
@@ -145,7 +147,7 @@ mod tests {
 
     #[test]
     fn test_vector() {
-        let storage = mock_storage(1024 * 1024);
+        let storage = mock_storage(1024);
         let mut vec_1 = StorageVec::<i32>::create(&storage, 2).unwrap();
         vec_1.push(1).unwrap();
         vec_1.push(2).unwrap();

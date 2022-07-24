@@ -20,22 +20,36 @@ impl MockStorage {
 }
 
 impl StorageAPI for MockStorage {
+    fn read(&self, offset: u32, data: &mut [u8]) -> Result<(), HostError> {
+        if offset as usize + data.len() > self.storage.borrow().len() {
+            return Err(HostError { code: -1 });
+        }
+
+        unsafe {
+            data.as_mut_ptr().copy_from(
+                self.storage.borrow().as_ptr().offset(offset as isize),
+                data.len(),
+            )
+        };
+        Ok(())
+    }
+
     fn write(&self, offset: u32, data: &[u8]) -> Result<(), HostError> {
         if offset as usize + data.len() > self.storage.borrow().len() {
             return Err(HostError { code: -1 });
         }
-        for (i, d) in data.iter().enumerate() {
-            self.storage.borrow_mut()[i + offset as usize] = *d;
-        }
-        Ok(())
-    }
 
-    fn read(&self, offset: u32, length: u32) -> Result<Vec<u8>, HostError> {
-        if (offset + length) as usize > self.storage.borrow().len() {
-            return Err(HostError { code: -1 });
-        }
-        let c = &self.storage.borrow()[offset as usize..(offset + length) as usize];
-        Ok(c.into())
+        unsafe {
+            data.as_ptr().copy_to(
+                self.storage
+                    .borrow_mut()
+                    .as_mut_ptr()
+                    .offset(offset as isize),
+                data.len(),
+            )
+        };
+
+        Ok(())
     }
 
     fn as_any(&mut self) -> &mut dyn Any {

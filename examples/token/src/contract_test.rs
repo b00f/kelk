@@ -15,7 +15,7 @@ fn setup(ctx: &mut MockContext) -> Address {
 
 #[test]
 fn test_instantiate() {
-    let mut ctx = mock_context(1024 * 1024);
+    let mut ctx = mock_context(1024);
     let owner = setup(&mut ctx);
     assert_eq!(name(ctx.as_ref()).unwrap(), "test-erc20".to_string());
     assert_eq!(symbol(ctx.as_ref()).unwrap(), "@".to_string());
@@ -25,7 +25,7 @@ fn test_instantiate() {
 
 #[test]
 fn test_transfer() {
-    let mut ctx = mock_context(1024 * 1024);
+    let mut ctx = mock_context(1024);
     let owner = setup(&mut ctx);
     let addr_1 = ctx.mocked_blockchain().generate_new_address();
     let addr_2 = ctx.mocked_blockchain().generate_new_address();
