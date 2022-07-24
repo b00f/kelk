@@ -1,5 +1,5 @@
 use crate::error::Error;
-use kelk::blockchain::address::Address;
+use kelk::blockchain::address::{Address, ADDRESS_ZERO};
 use kelk::context::Context;
 use kelk::storage::bst::StorageBST;
 use kelk::storage::codec::Codec;
@@ -73,7 +73,6 @@ impl<'a> ERC20<'a> {
         let name = StorageString::load(ctx.storage, name_offset)?;
         let symbol = StorageString::load(ctx.storage, symbol_offset)?;
 
-
         let total_supply = ctx.storage.read_i64(total_supply_offset)?;
 
         Ok(Self {
@@ -112,13 +111,23 @@ impl<'a> ERC20<'a> {
 
     pub fn approve(&mut self, spender: Address, amount: i64) -> Result<(), Error> {
         let owner: Address = self.ctx.blockchain.get_transaction_signer().unwrap();
-        self._approved(owner, spender, amount);
+        self._approved(owner, spender, amount)?;
         Ok(())
     }
 
-    pub fn _approved(&mut self, owner: Address, sepender: Address, amount: i64) -> bool {
-        self.allowances.insert(PairAddress(owner, sepender), amount);
-        return true;
+    pub fn _approved(
+        &mut self,
+        owner: Address,
+        sepender: Address,
+        amount: i64,
+    ) -> Result<(), Error> {
+        if owner.ne(&ADDRESS_ZERO) && !sepender.ne(&ADDRESS_ZERO) {
+            self.allowances
+                .insert(PairAddress(owner, sepender), amount)?;
+            Ok(())
+        } else {
+            Ok(())
+        }
     }
 
     pub fn transfer_from(&mut self, from: Address, to: Address, amount: i64) -> Result<(), Error> {
@@ -131,6 +140,22 @@ impl<'a> ERC20<'a> {
         self.balances.insert(from, tx_balance - amount).unwrap();
         self.balances.insert(to, rx_balance + amount).unwrap();
 
+        Ok(())
+    }
+
+    pub fn mint(&mut self, addr: Address, amount: i64) -> Result<(), Error> {
+        if addr.ne(&ADDRESS_ZERO) {
+            self.total_supply += amount;
+        }
+        Ok(())
+    }
+    pub fn burn(&mut self, addr: Address, amount: i64) -> Result<(), Error> {
+        if addr.ne(&ADDRESS_ZERO) {
+            let acc_balance = self.balance_of(addr)?;
+            if acc_balance >= amount {
+                self.total_supply -= amount;
+            }
+        }
         Ok(())
     }
 }

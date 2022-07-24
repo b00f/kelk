@@ -26,6 +26,20 @@ pub enum ProcMsg {
         #[n(1)]
         amount: i64,
     },
+    #[n(3)]
+    Mint {
+        #[n(0)]
+        addr: Address,
+        #[n(1)]
+        amount: i64,
+    },
+    #[n(4)]
+    Burn {
+        #[n(0)]
+        addr: Address,
+        #[n(1)]
+        amount: i64,
+    },
 }
 #[derive(Clone, Debug, Encode, Decode)]
 pub struct InstantiateMsg {

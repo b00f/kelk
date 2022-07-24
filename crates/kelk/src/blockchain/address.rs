@@ -8,6 +8,8 @@ use core::result::Result;
 
 /// Address type
 pub const ADDRESS_SIZE: usize = 21;
+/// This represents address zero
+pub const ADDRESS_ZERO: Address = Address([0; 21]);
 
 /// Address type in Zarb blockchain
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Codec)]
