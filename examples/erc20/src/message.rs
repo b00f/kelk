@@ -40,6 +40,29 @@ pub enum ProcMsg {
         #[n(1)]
         amount: i64,
     },
+    #[n(5)]
+    IncreaseAllowance {
+        #[n(0)]
+        spender: Address,
+        #[n(1)]
+        amount: i64,
+    },
+    #[n(6)]
+    DecreaseAllowance {
+        #[n(0)]
+        spender: Address,
+        #[n(1)]
+        amount: i64,
+    },
+    #[n(7)]
+    SpendAllowance {
+        #[n(0)]
+        owner: Address,
+        #[n(1)]
+        spender: Address,
+        #[n(2)]
+        amount: i64,
+    },
 }
 #[derive(Clone, Debug, Encode, Decode)]
 pub struct InstantiateMsg {
