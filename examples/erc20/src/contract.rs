@@ -28,6 +28,13 @@ pub fn process(ctx: Context, msg: ProcMsg) -> Result<(), Error> {
         ProcMsg::Approve { to, amount } => token.approve(to, amount),
         ProcMsg::Mint { addr, amount } => token.mint(addr, amount),
         ProcMsg::Burn { addr, amount } => token.burn(addr, amount),
+        ProcMsg::IncreaseAllowance { spender, amount } => token.increase_allowance(spender, amount),
+        ProcMsg::DecreaseAllowance { spender, amount } => token.decrease_allowance(spender, amount),
+        ProcMsg::SpendAllowance {
+            owner,
+            spender,
+            amount,
+        } => token.spend_allowance(owner, spender, amount),
     }
 }
 
