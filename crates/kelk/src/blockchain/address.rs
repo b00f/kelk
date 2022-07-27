@@ -12,7 +12,7 @@ pub const ADDRESS_SIZE: usize = 21;
 pub const ADDRESS_ZERO: Address = Address([0; 21]);
 
 /// Address type in Zarb blockchain
-#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Codec)]
+#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Codec, Copy)]
 pub struct Address([u8; ADDRESS_SIZE]);
 
 impl Address {
