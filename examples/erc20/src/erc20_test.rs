@@ -1,7 +1,5 @@
 use super::*;
-use kelk::{
-    mock::{mock_context, MockContext},
-};
+use kelk::mock::{mock_context, MockContext};
 
 fn setup(ctx: &mut MockContext) -> (ERC20, Address) {
     let owner = ctx.mocked_blockchain().generate_new_address();
@@ -39,4 +37,19 @@ fn test_transfer() {
     assert_eq!(erc20.balance_of(addr_1).unwrap(), 5);
     assert_eq!(erc20.balance_of(addr_2).unwrap(), 5);
     assert_eq!(erc20.balance_of(owner).unwrap(), 1990);
+}
+
+#[test]
+fn test_allowance() {
+    let mut ctx = mock_context(1024 * 1024);
+    let addr_1 = ctx.mocked_blockchain().generate_new_address();
+
+    let (mut erc20, owner) = setup(&mut ctx);
+    assert!(erc20.increase_allowance(addr_1.clone(), 10).is_ok());
+    assert_eq!(erc20.allowance(owner, addr_1.clone()), 10);
+    assert!(erc20.decrease_allowance(addr_1.clone(), 20).is_err());
+    assert!(erc20
+        .spend_allowance(owner.clone(), addr_1.clone(), 5)
+        .is_ok());
+    assert_eq!(erc20.allowance(owner, addr_1.clone()), 5);
 }
