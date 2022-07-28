@@ -1,8 +1,8 @@
 //! Mocking the blockchain for testing purpose
 
 use super::address::{Address, ADDRESS_SIZE};
-use super::PARAM_ID_TRANSACTION_SIGNER;
 use super::Blockchain;
+use super::PARAM_ID_TRANSACTION_SIGNER;
 use alloc::vec::Vec;
 use alloc::{boxed::Box, collections::BTreeMap};
 use core::any::Any;
@@ -34,9 +34,11 @@ impl MockBlockchain {
         Address::from_bytes(&buf).unwrap()
     }
     /// sets message sender for testing
-    pub fn set_msg_sender(&mut self, addr: Address) {
-        self.map
-            .insert(PARAM_ID_TRANSACTION_SIGNER, addr.as_bytes().to_vec());
+    pub fn set_msg_sender(&mut self, addr: &Address) {
+        self.map.insert(
+            PARAM_ID_TRANSACTION_SIGNER,
+            addr.clone().as_bytes().to_vec(),
+        );
     }
 }
 

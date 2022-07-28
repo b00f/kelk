@@ -37,13 +37,13 @@ impl<'a> ERC20<'a> {
         let mut name = StorageString::create(ctx.storage, token_name.len() as u32)?;
         let mut symbol = StorageString::create(ctx.storage, token_symbol.len() as u32)?;
 
-        let owner = ctx.blockchain.get_transaction_signer().unwrap();
-        balances.insert(owner.clone(), total_supply).unwrap();
+        let owner = ctx.blockchain.get_message_sender()?;
+        balances.insert(owner, total_supply).unwrap();
 
         let total_supply_offset = ctx.storage.allocate(i64::PACKED_LEN)?;
         ctx.storage.write_i64(total_supply_offset, &total_supply)?;
-        name.set_string(&token_name)?;
-        symbol.set_string(&token_symbol)?;
+        name.set_string(token_name)?;
+        symbol.set_string(token_symbol)?;
 
         ctx.storage.fill_stack_at(1, balances.offset())?;
         ctx.storage.fill_stack_at(2, allowances.offset())?;
@@ -97,113 +97,107 @@ impl<'a> ERC20<'a> {
         Ok(self.total_supply)
     }
 
-    pub fn balance_of(&self, addr: Address) -> Result<i64, Error> {
-        let balance = self.balances.find(&addr).unwrap().unwrap_or(0);
+    pub fn balance_of(&self, addr: &Address) -> Result<i64, Error> {
+        let balance = self.balances.find(addr).unwrap().unwrap_or(0);
         Ok(balance)
     }
 
-    pub fn transfer(&mut self, to: Address, amount: i64) -> Result<(), Error> {
-        let from: Address = self.ctx.blockchain.get_transaction_signer().unwrap();
-        self.transfer_from(from, to, amount)
+    pub fn transfer(&mut self, to: &Address, amount: &i64) -> Result<(), Error> {
+        let from: Address = self.ctx.blockchain.get_message_sender()?;
+        self.transfer_from(&from, to, amount)
     }
 
-    pub fn allowance(&self, owner: Address, spender: Address) -> i64 {
+    pub fn allowance(&self, owner: &Address, spender: &Address) -> i64 {
         self.allowances
-            .find(&PairAddress(owner, spender))
+            .find(&PairAddress(owner.clone(), spender.clone()))
             .unwrap()
             .unwrap_or(0)
     }
 
-    pub fn approve(&mut self, spender: Address, amount: i64) -> Result<(), Error> {
-        let owner: Address = self.ctx.blockchain.get_transaction_signer().unwrap();
-        self._approved(owner, spender, amount)?;
+    pub fn approve(&mut self, spender: &Address, amount: &i64) -> Result<(), Error> {
+        let owner: Address = self.ctx.blockchain.get_message_sender()?;
+        self._approved(&owner, spender, amount)?;
         Ok(())
     }
 
-    pub fn _approved(
-        &mut self,
-        owner: Address,
-        spender: Address,
-        amount: i64,
-    ) -> Result<(), Error> {
+    fn _approved(&mut self, owner: &Address, spender: &Address, amount: &i64) -> Result<(), Error> {
         if owner.ne(&ADDRESS_ZERO) && spender.ne(&ADDRESS_ZERO) {
             self.allowances
-                .insert(PairAddress(owner, spender), amount)?;
+                .insert(PairAddress(owner.clone(), spender.clone()), *amount)?;
             Ok(())
         } else {
             Ok(())
         }
     }
 
-    pub fn transfer_from(&mut self, from: Address, to: Address, amount: i64) -> Result<(), Error> {
-        let tx_balance = self.balances.find(&from).unwrap().unwrap_or(0);
-        let rx_balance = self.balances.find(&to).unwrap().unwrap_or(0);
+    pub fn transfer_from(
+        &mut self,
+        from: &Address,
+        to: &Address,
+        amount: &i64,
+    ) -> Result<(), Error> {
+        let tx_balance = self.balances.find(from).unwrap().unwrap_or(0);
+        let rx_balance = self.balances.find(to).unwrap().unwrap_or(0);
 
-        if tx_balance < amount {
+        if tx_balance.lt(amount) {
             return Err(Error::InsufficientAmount);
         }
-        self.balances.insert(from, tx_balance - amount).unwrap();
-        self.balances.insert(to, rx_balance + amount).unwrap();
+        self.balances.insert(from.clone(), tx_balance - amount)?;
+        self.balances.insert(to.clone(), rx_balance + amount)?;
 
         Ok(())
     }
 
-    pub fn mint(&mut self, addr: Address, amount: i64) -> Result<(), Error> {
+    pub fn mint(&mut self, addr: &Address, amount: &i64) -> Result<(), Error> {
         if addr.ne(&ADDRESS_ZERO) {
             self.total_supply += amount;
         }
         Ok(())
     }
 
-    pub fn burn(&mut self, addr: Address, amount: i64) -> Result<(), Error> {
+    pub fn burn(&mut self, addr: &Address, amount: &i64) -> Result<(), Error> {
         if addr.ne(&ADDRESS_ZERO) {
             let acc_balance = self.balance_of(addr)?;
-            if acc_balance >= amount {
-                self.total_supply -= amount;
+            if acc_balance.lt(amount) {
+                return Err(Error::InsufficientAmount);
             }
+            self.total_supply -= amount;
         }
         Ok(())
     }
 
-    pub fn increase_allowance(&mut self, spender: Address, amount: i64) -> Result<(), Error> {
-        let from: Address = self.ctx.blockchain.get_transaction_signer().unwrap();
-        self._approved(from, spender, self.allowance(from, spender) + amount)?;
+    pub fn increase_allowance(&mut self, spender: &Address, amount: &i64) -> Result<(), Error> {
+        let from: Address = self.ctx.blockchain.get_message_sender()?;
+        let allowance = self.allowance(&from, spender);
+        self._approved(&from, spender, &(allowance + amount))?;
         Ok(())
     }
 
-    pub fn decrease_allowance(
-        &mut self,
-        spender: Address,
-        amount: i64,
-    ) -> Result<(), Error> {
-        let owner: Address = self.ctx.blockchain.get_transaction_signer().unwrap();
-        let current_allowance: i64 = self.allowance(owner, spender);
-        if current_allowance < amount {
+    pub fn decrease_allowance(&mut self, spender: &Address, amount: &i64) -> Result<(), Error> {
+        let owner: Address = self.ctx.blockchain.get_message_sender()?;
+        let current_allowance: i64 = self.allowance(&owner, spender);
+        if current_allowance.lt(amount) {
             return Err(Error::InsufficientAmount);
         }
-        self._approved(
-            owner,
-            spender,
-            self.allowance(owner, spender) - amount,
-        )?;
+        let allowance = self.allowance(&owner, spender);
+        self._approved(&owner, spender, &(allowance - amount))?;
         Ok(())
     }
 
     pub fn spend_allowance(
         &mut self,
-        owner: Address,
-        spender: Address,
-        amount: i64,
+        owner: &Address,
+        spender: &Address,
+        amount: &i64,
     ) -> Result<(), Error> {
         let current_allowance: i64 = self.allowance(owner, spender);
-        if current_allowance < amount {
+        if current_allowance.lt(amount) {
             return Err(Error::InsufficientAmount);
         }
 
-        self._approved(owner, spender, current_allowance - amount)?;
+        self._approved(owner, spender, &(current_allowance - amount))?;
         Ok(())
     }
-
 }
 
 #[cfg(test)]

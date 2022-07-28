@@ -1,6 +1,5 @@
 //! Address type for representing actor address
 use super::error::Error;
-use crate::alloc::vec::Vec;
 use crate::storage::codec::Codec;
 use crate::Codec;
 use core::cmp::PartialOrd;
@@ -12,7 +11,7 @@ pub const ADDRESS_SIZE: usize = 21;
 pub const ADDRESS_ZERO: Address = Address([0; 21]);
 
 /// Address type in Zarb blockchain
-#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Codec, Copy)]
+#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Codec)]
 pub struct Address([u8; ADDRESS_SIZE]);
 
 impl Address {
