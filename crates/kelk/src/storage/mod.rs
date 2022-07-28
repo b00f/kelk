@@ -14,8 +14,6 @@ pub type Offset = u32;
 use self::codec::Codec;
 use self::error::Error;
 use alloc::boxed::Box;
-use alloc::string::ToString;
-use alloc::vec::Vec;
 use core::result::Result;
 use kelk_env::StorageAPI;
 
@@ -47,38 +45,43 @@ pub struct Storage {
     api: Box<dyn StorageAPI>,
 
     stack_size: u16,
+    allocation_offset: Offset,
 }
 
 impl Storage {
     /// creates a new instance of storage
     pub fn create(api: Box<dyn StorageAPI>) -> Result<Self, Error> {
-        api.write(0, &[1, 0])?; // version = 1
-        api.write(2, &[0, 1])?; // stack size = 256
-        api.write(4, &[0; 256 * 4])?; // stack
-        api.write(1028, &[0, 0, 4, 8])?; // free storage pos
-
-        let storage = Storage {
+        let mut storage = Storage {
             api,
-            stack_size: 256,
+            stack_size: 0,
+            allocation_offset: 0,
         };
-        // let freed = StorageLinkedList::create(&storage, 0)?;
-        // storage.freed = Some(freed);
+        storage.stack_size = 32;
+        storage.allocation_offset = (storage.stack_size as u32 * Offset::PACKED_LEN as u32) + 8;
+
+        storage.write_u16(0, &1)?; // version
+        storage.write_u16(2, &storage.stack_size)?;
+        storage.write(storage.allocation_offset, &(storage.allocation_offset + 4))?;
 
         Ok(storage)
     }
 
     ///
     pub fn load(api: Box<dyn StorageAPI>) -> Result<Self, Error> {
-        let ver = api.read(0, 2)?;
-        let stack_size = api.read(2, 2)?;
-        if !ver.eq(&[1, 0]) || !stack_size.eq(&[0, 1]) {
-            return Err(Error::GenericError("invalid storage file".to_string()));
-        }
-
-        let storage = Storage {
+        let mut storage = Storage {
             api,
-            stack_size: 256,
+            stack_size: 0,
+            allocation_offset: 0,
         };
+
+        let ver = storage.read_u16(0)?;
+        if ver != 1 {
+            return Err(Error::InvalidOffset(0));
+        }
+        let stack_size = storage.read_u16(2)?;
+
+        storage.stack_size = stack_size;
+        storage.allocation_offset = (storage.stack_size as u32 * Offset::PACKED_LEN as u32) + 8;
 
         Ok(storage)
     }
@@ -89,11 +92,11 @@ impl Storage {
 
     ///
     pub fn allocate(&self, length: usize) -> Result<Offset, Error> {
-        let cur_free_pos = self.read_u32(1028)?;
+        let cur_free_pos = self.read(self.allocation_offset)?;
         let next_free_pos = cur_free_pos + length as u32;
 
         // Updating allocation pos
-        self.write_u32(1028, &next_free_pos)?;
+        self.write(self.allocation_offset, &next_free_pos)?;
 
         Ok(cur_free_pos)
     }
@@ -136,8 +139,9 @@ impl Storage {
     /// Note that `T` should be `Codec`.
     #[inline]
     pub(crate) fn read<T: Codec>(&self, offset: u32) -> Result<T, Error> {
-        let data = self.api.read(offset, T::PACKED_LEN as u32)?;
-        let value = T::from_bytes(&data);
+        let mut bytes = alloc::vec![0; T::PACKED_LEN];
+        self.api.read(offset, &mut bytes)?;
+        let value = T::from_bytes(&bytes);
         Ok(value)
     }
 
@@ -145,14 +149,15 @@ impl Storage {
     /// Note that `T` should be `Codec`.
     #[inline]
     pub(crate) fn write<T: Codec>(&self, offset: Offset, value: &T) -> Result<(), Error> {
-        let data = value.to_bytes();
-        Ok(self.api.write(offset, &data)?)
+        let mut bytes = alloc::vec![0; T::PACKED_LEN];
+        value.to_bytes(&mut bytes);
+        Ok(self.api.write(offset, &bytes)?)
     }
 
     /// Reads slice of bytes of size `length` from the storage file at the given `offset`.
     #[inline]
-    pub(crate) fn read_bytes(&self, offset: u32, length: u32) -> Result<Vec<u8>, Error> {
-        Ok(self.api.read(offset, length)?)
+    pub(crate) fn read_bytes(&self, offset: u32, data: &mut [u8]) -> Result<(), Error> {
+        Ok(self.api.read(offset, data)?)
     }
 
     /// Writes bytes slice to the storage file at the given `offset`.
@@ -164,14 +169,20 @@ impl Storage {
 
 #[cfg(test)]
 pub mod tests {
+    use super::Storage;
     use crate::storage::codec::Codec;
     use crate::storage::mock::mock_storage;
-    use alloc::vec::Vec;
-    use kelk_derive::Codec;
+    use crate::Codec;
+
+    #[test]
+    fn test_storage_load() {
+        let storage_1 = mock_storage(1024);
+        assert!(Storage::load(storage_1.api).is_ok());
+    }
 
     #[test]
     fn test_unsigned_integers() {
-        let storage = mock_storage(1024 * 1024);
+        let storage = mock_storage(1024);
 
         let offset1 = storage.allocate(u8::PACKED_LEN).unwrap();
         let offset2 = storage.allocate(u16::PACKED_LEN).unwrap();
@@ -194,7 +205,7 @@ pub mod tests {
 
     #[test]
     fn test_signed_integers() {
-        let storage = mock_storage(1024 * 1024);
+        let storage = mock_storage(1024);
 
         let offset1 = storage.allocate(i8::PACKED_LEN).unwrap();
         let offset2 = storage.allocate(i16::PACKED_LEN).unwrap();
@@ -217,7 +228,7 @@ pub mod tests {
 
     #[test]
     fn test_bool() {
-        let storage = mock_storage(1024 * 1024);
+        let storage = mock_storage(1024);
 
         let offset1 = storage.allocate(bool::PACKED_LEN).unwrap();
         let offset2 = storage.allocate(bool::PACKED_LEN).unwrap();
@@ -240,7 +251,7 @@ pub mod tests {
             zoo: i32,
         }
 
-        let storage = mock_storage(1024 * 1024);
+        let storage = mock_storage(1024);
         let foo_1 = Test {
             foo: 123,
             bar: 7,

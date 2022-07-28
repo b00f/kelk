@@ -60,7 +60,7 @@ mod tests {
 
     #[test]
     fn test_string() {
-        let storage = mock_storage(1024 * 1024);
+        let storage = mock_storage(1024);
         let mut str_1 = StorageString::create(&storage, 16).unwrap();
         str_1.set_string("foo").unwrap();
 

@@ -4,16 +4,14 @@
 //! (that is, most significant byte first, also known as "big-endian").
 //!
 
-use alloc::vec::Vec;
-
 /// `Codec` trait defines functions to serialize types as bytes and deserialize from bytes
 /// in big-endian (network) byte order.
 pub trait Codec {
-    /// Represent the size of packed bytes in big-endian (network) byte order.
+    /// Borrows `self` and pack into `bytes` using big-endian representation.
     const PACKED_LEN: usize;
 
     /// Returns the memory representation of this type as a byte array in big-endian (network) byte order.
-    fn to_bytes(&self) -> Vec<u8>;
+    fn to_bytes(&self, bytes: &mut [u8]);
 
     /// Creates a native endian value from its representation as a byte array in big-endian (network) byte order.
     fn from_bytes(bytes: &[u8]) -> Self;
@@ -25,12 +23,16 @@ macro_rules! impl_codec_for_integer {
             const PACKED_LEN: usize = $size;
 
             #[inline]
-            fn to_bytes(&self) -> Vec<u8> {
-                self.to_be_bytes().to_vec()
+            fn to_bytes(&self, bytes: &mut [u8]) {
+                debug_assert_eq!(bytes.len(), Self::PACKED_LEN);
+
+                bytes.copy_from_slice(&self.to_be_bytes());
             }
 
             #[inline]
             fn from_bytes(bytes: &[u8]) -> Self {
+                debug_assert_eq!(bytes.len(), Self::PACKED_LEN);
+
                 let arr = bytes.try_into().expect("invalid data");
                 Self::from_be_bytes(arr)
             }
@@ -44,12 +46,16 @@ macro_rules! impl_codec_for_array {
             const PACKED_LEN: usize = $size;
 
             #[inline]
-            fn to_bytes(&self) -> Vec<u8> {
-                self.to_vec()
+            fn to_bytes(&self, bytes: &mut [u8]) {
+                debug_assert_eq!(bytes.len(), Self::PACKED_LEN);
+
+                bytes.copy_from_slice(self);
             }
 
             #[inline]
             fn from_bytes(bytes: &[u8]) -> Self {
+                debug_assert_eq!(bytes.len(), Self::PACKED_LEN);
+
                 let mut arr = [0; Self::PACKED_LEN];
                 arr.copy_from_slice(bytes);
                 arr
@@ -106,10 +112,12 @@ impl Codec for bool {
     const PACKED_LEN: usize = 1;
 
     #[inline]
-    fn to_bytes(&self) -> Vec<u8> {
+    fn to_bytes(&self, bytes: &mut [u8]) {
         match self {
-            true => [1].to_vec(),
-            false => [0].to_vec(),
+            true => bytes[0] = 1,
+            false => {
+                bytes[0] = 0;
+            }
         }
     }
 
@@ -128,16 +136,30 @@ mod tests {
     fn codec_integer() {
         let v1 = 0xabcdef;
         let v2 = 0xabcdefabcdef;
-        assert_eq!(i32::from_bytes(&v1.to_bytes()), v1);
-        assert_eq!(i64::from_bytes(&v2.to_bytes()), v2);
+
+        let mut b1 = [0; i32::PACKED_LEN];
+        let mut b2 = [0; i64::PACKED_LEN];
+
+        v1.to_bytes(&mut b1);
+        v2.to_bytes(&mut b2);
+
+        assert_eq!(i32::from_bytes(&b1), v1);
+        assert_eq!(i64::from_bytes(&b2), v2);
     }
 
     #[test]
     fn codec_array() {
         let v1 = [0, 1, 2, 3, 4, 5];
         let v2 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-        assert_eq!(<[u8; 6]>::from_bytes(&v1.to_bytes()), v1);
-        assert_eq!(<[u8; 12]>::from_bytes(&v2.to_bytes()), v2);
+
+        let mut b1 = [0; 6];
+        let mut b2 = [0; 12];
+
+        v1.to_bytes(&mut b1);
+        v2.to_bytes(&mut b2);
+
+        assert_eq!(<[u8; 6]>::from_bytes(&v1), v1);
+        assert_eq!(<[u8; 12]>::from_bytes(&v2), v2);
     }
 
     #[test]
@@ -153,7 +175,9 @@ mod tests {
             b: [1, 2, 3],
         };
 
-        let bytes = foo.to_bytes();
-        assert_eq!(foo, Foo::from_bytes(&bytes));
+        let mut b1 = [0; Foo::PACKED_LEN];
+
+        foo.to_bytes(&mut b1);
+        assert_eq!(Foo::from_bytes(&b1), foo);
     }
 }

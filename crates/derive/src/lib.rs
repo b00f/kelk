@@ -12,7 +12,7 @@ use syn::{
 /// It can be added to the contract's instantiate, process and query functions
 /// like this:
 /// ```
-/// use kelk::kelk_derive;
+/// use kelk::kelk_entry;
 /// use kelk::context::Context;
 ///
 /// type InstantiateMsg = ();
@@ -21,17 +21,17 @@ use syn::{
 ///
 /// enum Error {};
 ///
-/// #[kelk_derive(instantiate)]
+/// #[kelk_entry]
 /// pub fn instantiate(ctx: Context, msg: InstantiateMsg) -> Result<(), Error> {
 ///    todo!();
 /// }
 ///
-/// #[kelk_derive(process)]
+/// #[kelk_entry]
 /// pub fn process(ctx: Context, msg: ProcessMsg) -> Result<(), Error> {
 ///   todo!();
 /// }
 ///
-/// #[kelk_derive(query)]
+/// #[kelk_entry]
 /// pub fn query(ctx: Context, msg: QueryMsg) -> Result<(), Error> {
 ///   todo!();
 /// }
@@ -40,7 +40,7 @@ use syn::{
 /// where `InstantiateMsg`, `ProcessMsg`, and `QueryMsg` are contract defined
 /// types that implement CBOR encoding.
 #[proc_macro_attribute]
-pub fn kelk_derive(
+pub fn kelk_entry(
     _attr: proc_macro::TokenStream,
     mut item: proc_macro::TokenStream,
 ) -> proc_macro::TokenStream {
@@ -48,25 +48,40 @@ pub fn kelk_derive(
     let function = parse_macro_input!(cloned as syn::ItemFn);
     let name = function.sig.ident.to_string();
 
-    let new_code = format!(
+    let storage_method = match name.as_ref() {
+        "instantiate" => "create",
+        "process" => "load",
+        "query" => "load",
+        _ => {
+            return proc_macro::TokenStream::from(quote! {
+                compile_error!("entry function should be either \"instantiate\", \"process\", or \"query\""),
+            })
+        }
+    };
+
+    let gen_code = format!(
         r##"
         #[cfg(target_arch = "wasm32")]
         mod __wasm_export_{name} {{
             #[no_mangle]
             extern "C" fn {name}(msg_ptr: u64) -> u64 {{
                 let ctx = kelk::context::OwnedContext {{
-                    storage: kelk::storage::Storage::new(
-                        kelk::alloc::boxed::Box::new(kelk::Kelk::new())),
-                    blockchain: kelk::blockchain::Blockchain::new(
-                        kelk::alloc::boxed::Box::new(kelk::Kelk::new())),
+                    storage: kelk::storage::Storage::{method}(kelk::alloc::boxed::Box::new(kelk::Kelk::new()))
+                        .unwrap(),
+                    blockchain: kelk::blockchain::Blockchain::new(kelk::alloc::boxed::Box::new(
+                        kelk::Kelk::new(),
+                    )),
                 }};
+
                 kelk::do_{name}(&super::{name}, ctx.as_ref(), msg_ptr)
             }}
         }}
     "##,
         name = name,
+        method = storage_method,
     );
-    let entry = proc_macro::TokenStream::from_str(&new_code).unwrap();
+
+    let entry = proc_macro::TokenStream::from_str(&gen_code).unwrap();
     item.extend(entry);
     item
 }
@@ -93,14 +108,16 @@ pub fn derive_codec(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
             const PACKED_LEN: usize = #packed_len_body;
 
             #[inline]
-            fn to_bytes(&self) -> Vec<u8> {
-                let mut bytes = Vec::with_capacity(<Self as Codec>::PACKED_LEN);
+            fn to_bytes(&self, bytes: &mut [u8]) {
+                debug_assert_eq!(bytes.len(), Self::PACKED_LEN);
+
                 #to_bytes_body
-                bytes
             }
 
             #[inline]
             fn from_bytes(bytes: &[u8]) -> Self {
+                debug_assert_eq!(bytes.len(), Self::PACKED_LEN);
+
                 Self { #from_bytes_body }
             }
         }
@@ -207,14 +224,14 @@ fn codegen_struct<T: ToTokens>(fields: &[(&Type, T)]) -> (TokenStream, TokenStre
     for field in fields.iter() {
         let ty = field.0;
         let name = &field.1;
-
-        recurse_to_bytes.push(quote! {
-            bytes.extend_from_slice(&Codec::to_bytes(&self.#name));
-        });
-
         let struct_size = quote! { <#ty as Codec>::PACKED_LEN };
         let end_offset = quote! { #beg_offset + #struct_size };
         let bytes_slice = quote! { bytes[#beg_offset..#end_offset] };
+
+        recurse_to_bytes.push(quote! {
+            Codec::to_bytes(&self.#name, &mut #bytes_slice);
+        });
+
         recurse_from_bytes.push(quote! {
             #name: Codec::from_bytes(& #bytes_slice),
         });

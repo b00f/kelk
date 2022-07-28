@@ -65,6 +65,17 @@ impl Default for Kelk {
 }
 
 impl StorageAPI for Kelk {
+    fn read(&self, offset: u32, data: &mut [u8]) -> Result<(), HostError> {
+        let ptr = data.as_ptr() as u32;
+        let len = data.len() as u32;
+
+        let code = unsafe { read_storage(offset, ptr, len) };
+        if code != 0 {
+            return Err(HostError { code });
+        }
+        Ok(())
+    }
+
     fn write(&self, offset: u32, data: &[u8]) -> Result<(), HostError> {
         let ptr = data.as_ptr() as u32;
         let len = data.len() as u32;
@@ -74,17 +85,6 @@ impl StorageAPI for Kelk {
             return Err(HostError { code });
         }
         Ok(())
-    }
-
-    fn read(&self, offset: u32, len: u32) -> Result<Vec<u8>, HostError> {
-        let vec = crate::alloc::vec![0; len as usize];
-        let ptr = vec.as_ptr() as u32;
-
-        let code = unsafe { read_storage(offset, ptr, len) };
-        if code != 0 {
-            return Err(HostError { code });
-        }
-        Ok(vec.to_vec())
     }
 
     fn as_any(&mut self) -> &mut dyn Any {

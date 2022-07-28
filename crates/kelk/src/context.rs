@@ -12,6 +12,7 @@ pub struct Context<'a> {
 }
 
 /// `OwnedContext` owns the instances.
+/// It designed to allow easy dependency injection at runtime.
 pub struct OwnedContext {
     /// The instance of Storage
     pub storage: Storage,

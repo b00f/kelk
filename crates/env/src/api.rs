@@ -10,7 +10,7 @@ use alloc::vec::Vec;
 pub trait StorageAPI {
     /// This API requests the host to read data from the storage file
     /// at the given `offset` up to the given `length`.
-    fn read(&self, offset: u32, length: u32) -> Result<Vec<u8>, HostError>;
+    fn read(&self, offset: u32, data: &mut [u8]) -> Result<(), HostError>;
 
     /// This API requests the host to write `data` into the storage file
     /// at the given `offset`
